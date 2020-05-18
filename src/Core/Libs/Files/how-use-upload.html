@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+    <title>Title</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+</head>
+<body>
+<code>
+<pre>
+
+use Core\Libs\Files\Upload;
+use Core\Libs\Files\ResponseFactory;
+
+$di = new \Core\Bootstrap\DiContainer();
+$uploader = $di->get('Core\Libs\Files\Upload');
+
+$uploader->max_size = 2;
+$uploader->max_files = 2;
+$uploader->preffix = date('d_M_Y_', time());
+$uploader->filename_length = 6;
+$uploader->file_name = 'random';
+$uploader->overwrite = false;
+
+$init = [
+    'max_files'=>1,
+    'directory'=>'uploads/',
+    'max_size'=>2,
+    'file_name'=>'random',
+    'filename_length'=>8
+
+];
+
+$uploader->init($init);
+
+$upload = $uploader->upload('img');
+$response = ResponseFactory::makeResponse($upload, 'html');
+
+dump($response);
+
+if ($response->countErrors() > 0) {
+    ... do some error msg
+    dump($upload->hasError());
+    dump($response->errors());
+
+} else {
+    ... do some
+    dump($upload->response);
+    echo ($upload->getResponse());
+}
+</pre>
+</code>
+
+</body>
+</html>

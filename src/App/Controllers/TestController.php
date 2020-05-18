@@ -1,0 +1,129 @@
+<?php
+
+namespace App\Controllers;
+
+defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
+
+use App\Libraries\Cart;
+use Core\Controller;
+use Core\Libs\{Request, Response, Csrf, Validator};
+use Core\Libs\Support\Facades\{Url, DB, Validator as ValidatorFacade};
+use Symfony\Component\Finder\Finder;
+class TestController extends Controller
+{
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function form()
+    {
+        view('form-search');
+    }
+
+    /**
+     * @param Request $request
+     */
+    public function store(Request $request)
+    {
+        ValidatorFacade::for($request)
+            ->make('email', _t('поща'), ['required', 'email'])
+            ->make('pass', '', ['required', 'min:3']);
+
+        if (ValidatorFacade::run() === false) {
+            redirect()->back();
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @throws \Exception
+     */
+    public function testBlade(Finder $finder)
+    {
+        /*$data['valid'] = (Url::full() == Url::previous()) ? 'is-valid' : null;
+
+            $p2 = $cart->add(['id' => '45', 'qty' => '2', 'price' => '100.24', 'name' => 'Jeans',
+                'variations'=>[
+                    'color'=>'white',
+                    'dimension'=>[
+                        'size'=>'M'
+                    ]
+                ]
+            ]);
+        dd($cart->getCart());*/
+       // view('blade.homepage', $data);
+
+       $finder->files()->in('js')->name('*.js');
+
+        foreach ($finder as $file) {
+            $absoluteFilePath = $file->getRealPath();
+            $fileNameWithExtension = $file->getRelativePathname();
+            dump($fileNameWithExtension);
+            // ...
+        }
+    }
+
+    public function getProducts($lang)
+    {
+        $uri = route('products', ['lang' => 'bg']);
+        $uri1 = route('products1');
+        $uri2 = route('products2', ['lang' => 'GB']);
+
+        $url = url($uri);
+        $link = "<a href='$url'>En</a>";
+        echo $link . " " . $lang;
+    }
+
+    public function testStoreBlade(Request $request, Validator $validator)
+    {
+        echo "testStoreBlade ID: " . ($request->id);
+        var_dump(($request->cookie('manufacture')));
+        // die;
+        parse_str(file_get_contents("php://input"), $q);
+        $validator->for($request)
+            ->make('email', 'Email address', ['required'])
+            //      ->make('pass', 'Enter Password', ['required', 'min:3'])
+            //      ->make('passwordconfirm', 'Confirm password', ['required', 'match:pass'])
+            ->make('agree', 'Agree', ['required']);
+
+        // $validator->message(['required' => 'Please fill this field']);
+
+        if ($validator->run() === false) {
+            redirect()->back();
+        }
+
+        $data = ['name' => $request->post('email')];
+
+        if (DB::table('test')->insert($data)) {
+            redirect()->to('blade')->with('success', 'all is Ok!');
+        }
+    }
+
+    public function ajax()
+    {
+        $data = DB::table('geo_city')->paginate(10);
+        $data->link->setMaxPagesToShow(10);
+
+        $data->link = sprintf($data->link);
+        echo Response::json($data);
+        exit;
+    }
+
+    public function search(Request $request, Csrf $csrf)
+    {
+        $validation = $request->validation()
+            ->make('email', _t('поща'), ['required', 'email'])
+            ->make('pass', _t('Парола'), ['required', 'min:4', 'max:8']);
+
+        if ($csrf->csrf_validate() === false) {
+            redirect()->to('test')->with('msg', 'Invalid CSFR tokken');
+        }
+
+        if ($validation->run() === false) {
+
+            redirect()->back();
+        }
+
+    }
+}

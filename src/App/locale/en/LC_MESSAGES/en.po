@@ -1,0 +1,36 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: manufacture\n"
+"POT-Creation-Date: 2019-12-16 23:05+0200\n"
+"PO-Revision-Date: 2019-12-18 23:02+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.2.1\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: tr_;tn_;__t;_t;_tn;__tn\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: Controllers/TestController.php:44 Controllers/TestController.php:101
+msgid "поща"
+msgstr ""
+
+#: Controllers/TestController.php:102
+#: storage/app/views/b40e125ad8ef4358d51c570f5ddbcf353d5cd6d5.php:4
+msgid "Парола"
+msgstr "Password"
+
+#~ msgid "стая"
+#~ msgid_plural "стаи"
+#~ msgstr[0] "room"
+#~ msgstr[1] "rooms"
+
+#~ msgid "Моля попълнете полето"
+#~ msgstr "Please fill in the field"
+
+#~ msgid "Тест на функция с гет текст"
+#~ msgstr "Testing new gettext Functions"
