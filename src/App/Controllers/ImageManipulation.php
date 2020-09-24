@@ -25,4 +25,9 @@ class ImageManipulation extends Controller
         dump($img->imageinfo());
 
     }
+
+    public function test()
+    {
+        
+    }
 }
