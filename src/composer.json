@@ -12,6 +12,7 @@
     "jenssegers/blade": "^1.1",
     "illuminate/pipeline": "^5.8"
   },
+  
   "require-dev": {
     "symfony/var-dumper": "^2.6 || ^3.0"
   },
