@@ -17,7 +17,6 @@ use Core\Libs\Interfaces\Facade as FasadeInterface;
  */
 class DB extends Facade implements FasadeInterface
 {
-
     public static $db;
 
     public static function getFacade()

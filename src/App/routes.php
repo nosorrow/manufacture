@@ -40,47 +40,70 @@ use Core\Libs\Support\Arr;
 
 // Create Routes colection
 try {
-
-// Uncomment for Shut down your Site
+    // Uncomment for Shut down your Site
     /*Router::site_down(function(){
         echo 'Сайта е в ремонт !';
         //setLayout('login')->render('dashboard/login');
         exit;
     });*/
 
-    Router::get('/', [function ($lang=null) {
-        $data = [];
-        if (!Core\Libs\Support\Facades\Config::getConfigFromFile('key')){
-           $data['key'] = crypt_generate_key();
-        }
-        echo $lang;
-        view('welcome', $data);
-    }, 'name'=>'home']);
+    Router::get('/', [
+        function ($lang = null) {
+            $data = [];
+            if (!Core\Libs\Support\Facades\Config::getConfigFromFile('key')) {
+                $data['key'] = crypt_generate_key();
+            }
+            echo $lang;
+            view('welcome', $data);
+        },
+        'name' => 'home',
+    ]);
 
-    Router::get('blade/{lang?}', ['TestController@testBlade', 'name'=>'testBlade']);
-    Router::any('store-blade/{lang?}', ['TestController@testStoreBlade', 'middleware'=>'test']);
-    Router::get('/{lang?:[a-z]{0,3}}/products', ['TestController@getProducts', 'name'=>'products']);
-    Router::get('/{lang?:[a-z]}/products1', ['TestController@getProducts', 'name'=>'products1']);
-    Router::get('{lang:[a-z]{0,3}}/products2', ['TestController@getProducts', 'name'=>'products2']);
+    Router::get('blade/{lang?}', [
+        'TestController@testBlade',
+        'name' => 'testBlade',
+    ]);
+    Router::any('store-blade/{lang?}', [
+        'TestController@testStoreBlade',
+        'middleware' => 'test',
+    ]);
+    Router::get('/{lang?:[a-z]{0,3}}/products', [
+        'TestController@getProducts',
+        'name' => 'products',
+    ]);
+    Router::get('/{lang?:[a-z]}/products1', [
+        'TestController@getProducts',
+        'name' => 'products1',
+    ]);
+    Router::get('{lang:[a-z]{0,3}}/products2', [
+        'TestController@getProducts',
+        'name' => 'products2',
+    ]);
 
     // Redirect to Error page
-    Router::any('page/{id}',
-        [
-            'ErrorPage@show',
-            'name' => 'error'
-        ]
-    );
+    Router::any('page/{id}', ['ErrorPage@show', 'name' => 'error']);
     Router::any('search', ['TestController@search']);
-    Router::any('test/{lang?}', ['TestController@form', 'name'=>'test']);
+    Router::any('test/{lang?}', ['TestController@form', 'name' => 'test']);
     Router::any('store', ['TestController@store']);
-    Router::any('bg-cities', ['TestController@getCities', 'name'=>'bgCities', 'middleware'=>'Cors']);
+    Router::any('bg-cities', [
+        'TestController@getCities',
+        'name' => 'bgCities',
+        'middleware' => 'Cors',
+    ]);
 
-    Router::get('balance/{userId}', ['Balancecontroller@balance', 'name'=>'balance']);
-    Router::get('spend/{userId}/{amount}', ['Balancecontroller@spend', 'name'=>'spend']);
-    Router::get('transfer/{fromUserId}/{toUserId}/{amount}',
-        ['Balancecontroller@transfer', 'name'=>'transfer']);
+    Router::get('balance/{userId}', [
+        'Balancecontroller@balance',
+        'name' => 'balance',
+    ]);
+    Router::get('spend/{userId}/{amount}', [
+        'Balancecontroller@spend',
+        'name' => 'spend',
+    ]);
+    Router::get('transfer/{fromUserId}/{toUserId}/{amount}', [
+        'Balancecontroller@transfer',
+        'name' => 'transfer',
+    ]);
     Router::get('trans', ['Balancecontroller@trans']);
-
 } catch (\Exception $e) {
     die($e->getMessage());
 }
