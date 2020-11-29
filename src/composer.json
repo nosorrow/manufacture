@@ -30,15 +30,6 @@
       "App\\Views\\": "App/Views",
       "App\\Libraries\\": "App/Libraries"
 
-    },
-    "classmap": [
-      "vendor/phpmailer/phpmailer/class.phpmailer.php",
-      "vendor/phpmailer/phpmailer/class.phpmaileroauth.php",
-      "vendor/phpmailer/phpmailer/class.phpmaileroauthgoogle.php",
-      "vendor/phpmailer/phpmailer/class.smtp.php",
-      "vendor/phpmailer/phpmailer/class.pop3.php",
-      "vendor/phpmailer/phpmailer/extras/EasyPeasyICS.php",
-      "vendor/phpmailer/phpmailer/extras/ntlm_sasl_client.php"
-    ]
+    }
   }
 }

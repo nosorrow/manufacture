@@ -104,6 +104,9 @@ try {
         'name' => 'transfer',
     ]);
     Router::get('trans', ['Balancecontroller@trans']);
+
+    Router::get('send-email', ['TestController@sendMail']);
+
 } catch (\Exception $e) {
     die($e->getMessage());
 }
