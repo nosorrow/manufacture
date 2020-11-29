@@ -6,7 +6,7 @@
   "require": {
     "php": ">=7.0.0",
     "monolog/monolog": "^1.22",
-    "phpmailer/phpmailer": "^5.2",
+    "phpmailer/phpmailer": "6.1.6",
     "filp/whoops": "^2.1",
     "jasongrimes/paginator": "~1.0",
     "jenssegers/blade": "^1.1",
