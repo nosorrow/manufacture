@@ -1,11 +1,9 @@
 <?php
 
-namespace Core\Bootstrap;
-
-include_once APPLICATION_DIR . 'routes.php';
-
-/**
+/*
  * Class Router
+ * https://github.com/nosorrow/php-router
+ *
  * Маршрутизация с използване на регулярни изрази по идея на "nikic"
  * https://nikic.github.io/2014/02/18/Fast-request-routing-using-regular-expressions.html
  *
@@ -73,8 +71,10 @@ class Router
      * @var int
      */
     protected $countOptional = 0;
+
     /**
      * Router constructor.
+     * @throws RouterExceprion
      */
     public function __construct()
     {
@@ -120,10 +120,8 @@ class Router
         if (is_array($r)) {
             // check for Duplicate
             foreach ($r as $method => $action) {
-                if (isset($action['name'])) {
-                    if ($route_name === $action['name']) {
-                        throw new RouterExceprion(sprintf('Duplicate [httpMethod: %s  route name: %s]', $httpMethod, $route_name));
-                    }
+                if (isset($action['name']) && $route_name === $action['name']) {
+                    throw new RouterExceprion(sprintf('Duplicate [httpMethod: %s  route name: %s]', $httpMethod, $route_name));
                 }
             }
         }
@@ -159,10 +157,9 @@ class Router
         $new = [];
         $arr = explode('/', $route);
         foreach ($arr as $key => $value) {
-            if (isset($value[0]))
-                if ($value[0] != '{') {
-                    $value = '\b' . $value . '\b';
-                }
+            if (isset($value[0]) && $value[0] !== '{') {
+                $value = '\b' . $value . '\b';
+            }
 
             $new[] = $value;
         }
@@ -179,14 +176,14 @@ class Router
         preg_match_all('#\{([^/]+)*?\}#', $uri, $matches);
 
         $_parameters = array_map(function ($a) {
-            if (!false == strpos($a, ':')) {
+            if (!false === strpos($a, ':')) {
                 $a = substr($a, 0, strpos($a, ':'));
             }
             return trim($a, '?');
         }, $matches[1]);
 
-        $_regex = array_map(function ($a) {
-            if (!false == strpos($a, ':')) {
+        $_regex = array_map(function($a) {
+            if (!false === strpos($a, ':')) {
                 $a = substr($a, strpos($a, ':') + 1);
             } else {
                 $a = null;
@@ -198,9 +195,9 @@ class Router
         foreach ($_parameters as $key => $value) {
             if (isset($parameters[$value])) {
                 throw new RouterExceprion(sprintf('Duplicate parameters [ %s ]', $value));
-            } else {
-                $parameters[$value] = $_regex[$key];
             }
+
+            $parameters[$value] = $_regex[$key];
         }
         return $parameters;
     }
@@ -213,7 +210,6 @@ class Router
     protected function parametersPatternMatch($arg_pattern, $arg_values)
     {
         $r = true;
-        $format = '';
 
         foreach (array_values($arg_pattern) as $key => $value) {
             if ($value == '') {
@@ -229,9 +225,9 @@ class Router
                 if (!preg_match_all('~^' . $value . '$~', $arg_values[$key])) {
                     $r = false;
                     break;
-                } else {
-                    $r = true;
                 }
+
+                $r = true;
             }
         }
         return $r;
@@ -251,14 +247,14 @@ class Router
             $parameters[$key]['paramname'] = $value;
 
             if ($format_value[$key] != '') {
-                $paramvalue = substr($param_val[$key], 0, strrpos($param_val[$key], '.'));
-                $parameters[$key]['paramvalue'] = ((bool)$paramvalue == false) ? $param_val[$key] : $paramvalue;
+                $paramValue = substr($param_val[$key], 0, strrpos($param_val[$key], '.'));
+                $parameters[$key]['paramValue'] = ((bool)$paramValue == false) ? $param_val[$key] : $paramValue;
 
             } else {
-                $parameters[$key]['paramvalue'] = $param_val[$key];
+                $parameters[$key]['paramValue'] = $param_val[$key];
             }
         }
-        $parameters = array_column($parameters, 'paramvalue', 'paramname');
+        $parameters = array_column($parameters, 'paramValue', 'paramname');
 
         return $this->param_filter($parameters);
     }
@@ -335,13 +331,12 @@ class Router
     protected function recursiveRouteNameSearch($needle, $haystack)
     {
         foreach ($haystack as $key => $value) {
-            $current_key = $key;
             if (isset($value['name'])) {
                 if ($needle !== $value['name']) {
                     continue;
-                } else {
-                    return $current_key;
                 }
+
+                return $key;
             }
         }
 
