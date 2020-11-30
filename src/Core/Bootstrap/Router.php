@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Class Router
  * https://github.com/nosorrow/php-router
@@ -35,6 +34,10 @@
  * $router = new Router();
  * $route = $router->dispatch('post/55'); // return array
  */
+namespace Core\Bootstrap;
+
+include_once APPLICATION_DIR . 'routes.php';
+
 use Core\Libs\Exceptions\RouterExceprion;
 
 class Router
