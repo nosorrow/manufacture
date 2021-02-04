@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use Core\Controller;
+use Exception;
+use PDO;
 use PDOException;
 use Core\Libs\{Request, Response, Csrf, Validator};
 use Core\Libs\Support\Facades\{Url, Crypt, DB, Log, Config, Validator as ValidatorFacade};
@@ -10,13 +12,13 @@ use Core\Libs\Support\Facades\{Url, Crypt, DB, Log, Config, Validator as Validat
 class BalanceController extends Controller
 {
     /**
-     * @var \PDO
+     * @var PDO
      */
     public $dbh;
 
     /**
      * BalanceController constructor.
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -42,7 +44,7 @@ class BalanceController extends Controller
 
             }
 
-          //  sleep(20);
+            //  sleep(20);
 
             $sth = $this->dbh->prepare(
                 "UPDATE `account` SET `balance` = balance - ?, `updated`=NOW() WHERE id=?;"
@@ -60,6 +62,46 @@ class BalanceController extends Controller
 
         $balance = $this->getBalance($userId);
         echo " New user balance is: $balance";
+
+    }
+
+    private function startTransaction($fromId, $toId, $amount, $type)
+    {
+        try {
+            $stm = $this->dbh->prepare(
+                'INSERT INTO `transactions` (fromuser, touser, amount, transactiontype, start_at) VALUES (?,?,?,?, NOW())');
+
+            $stm->execute([$fromId, $toId, $amount, $type]);
+            return $this->dbh->lastInsertId();
+
+        } catch (PDOException $e) {
+            die($e->getMessage());
+        }
+
+    }
+
+    private function getBalance($userId, $forupdate = true)
+    {
+        $lock = ($forupdate === true) ? "FOR UPDATE" : "";
+        $sth = $this->dbh->prepare("SELECT `balance` FROM `account` WHERE `id`=? {$lock}");
+
+        $sth->execute([$userId]);
+
+        $result = $sth->fetch(1);
+        return $result->balance;
+    }
+
+    private function updateTransaction($transactionId)
+    {
+        try {
+            $stm = $this->dbh->prepare(
+                'UPDATE transactions SET updated=NOW() WHERE id=?');
+            $stm->execute([$transactionId]);
+            return $this->dbh->lastInsertId();
+
+        } catch (PDOException $e) {
+            die($e->getMessage());
+        }
 
     }
 
@@ -111,47 +153,6 @@ class BalanceController extends Controller
 
     }
 
-    private function getBalance($userId, $forupdate = true)
-    {
-      $lock = ($forupdate === true) ? "FOR UPDATE" : "";
-        $sth = $this->dbh->prepare("SELECT `balance` FROM `account` WHERE `id`=? {$lock}");
-
-        $sth->execute([$userId]);
-
-        $result = $sth->fetch(1);
-
-        return $result->balance;
-    }
-
-    private function startTransaction($fromId, $toId, $amount, $type)
-    {
-        try {
-            $stm = $this->dbh->prepare(
-                'INSERT INTO `transactions` (fromuser, touser, amount, transactiontype, start_at) VALUES (?,?,?,?, NOW())');
-
-            $stm->execute([$fromId, $toId, $amount, $type]);
-            return $this->dbh->lastInsertId();
-
-        } catch (PDOException $e) {
-            die($e->getMessage());
-        }
-
-    }
-
-    private function updateTransaction($transactionId)
-    {
-        try {
-            $stm = $this->dbh->prepare(
-                'UPDATE transactions SET updated=NOW() WHERE id=?');
-            $stm->execute([$transactionId]);
-            return $this->dbh->lastInsertId();
-
-        } catch (PDOException $e) {
-            die($e->getMessage());
-        }
-
-    }
-
     public function balance($userId)
     {
         $balance = $this->getBalance($userId);
@@ -167,7 +168,7 @@ class BalanceController extends Controller
             $a->execute();
             $result = $a->fetch();
             dump($result[0]);
-            if($result[0] == 0){
+            if ($result[0] == 0) {
                 die(" The account does not have enough funds ");
             }
 

@@ -18,7 +18,7 @@ use Core\Libs\Interfaces\Facade as FasadeInterface;
 class Config extends Facade implements FasadeInterface
 {
 
-    const DOMAIN = 'config';
+    public const DOMAIN = 'config';
 
     public static $config;
 

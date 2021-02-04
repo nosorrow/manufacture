@@ -18,7 +18,6 @@ use Core\Libs\Support\Facades\Config;
  */
 class Session
 {
-
     private static $instance = null;
 
     public $session_save_path;
@@ -36,7 +35,7 @@ class Session
     {
         $driver = Config::getConfigFromFile('session_handler');
 
-        if ($driver == 'database') {
+        if ($driver === 'database') {
             include_once SYSTEM_DIR . 'Libs\Session\DataBaseSessionHandler.php';
         }
 
@@ -47,8 +46,14 @@ class Session
         $secure = Config::getConfigFromFile('session_secure');
         $this->session_save_path = $session_save_path;
 
-        if (!realpath($session_save_path)) {
-            mkdir($session_save_path, 0777, true);
+        if (
+            !realpath($session_save_path) &&
+            !mkdir($session_save_path, 0777, true) &&
+            !is_dir($session_save_path)
+        ) {
+            throw new \RuntimeException(
+                sprintf('Directory "%s" was not created', $session_save_path)
+            );
         }
 
         session_name($name);
@@ -77,9 +82,8 @@ class Session
         if ($_SESSION['last_regen'] + $session_regen_time < time()) {
             $_SESSION['last_regen'] = time();
 
-            session_regenerate_id((bool)$_bool);
+            session_regenerate_id((bool) $_bool);
         }
-
     }
 
     /**
@@ -100,7 +104,6 @@ class Session
         $this->config[$config] = $data;
     }
 
-
     /**
      * @param $key
      * @param null $data
@@ -118,7 +121,6 @@ class Session
 
         foreach ($key as $k => $value) {
             Arr::set($_SESSION, $k, $value);
-
         }
     }
 
@@ -182,10 +184,9 @@ class Session
 
     public function has($key)
     {
-        $array = (Arr::get($_SESSION, $key, []));
+        $array = Arr::get($_SESSION, $key, []);
 
-        return (bool)($array);
-
+        return (bool) $array;
     }
 
     /**
@@ -194,7 +195,7 @@ class Session
      */
     public function push($name, $value)
     {
-        $array = (array)(Arr::get($_SESSION, $name, []));
+        $array = (array) Arr::get($_SESSION, $name, []);
 
         $array[] = $value;
 
@@ -209,7 +210,6 @@ class Session
     public function pull($key, $default = null)
     {
         return Arr::pull($_SESSION, $key, $default);
-
     }
 
     /**
@@ -227,19 +227,17 @@ class Session
      */
     public function getFlash($key)
     {
-        $flash = array();
+        $flash = [];
 
         if (isset($_SESSION['flash'][$key])) {
-
             $flash[$key] = $_SESSION['flash'][$key];
 
-            unset ($_SESSION['flash'][$key]);
-
+            unset($_SESSION['flash'][$key]);
         } else {
             $flash[$key] = null;
         }
 
-        return ($flash[$key]);
+        return $flash[$key];
     }
 
     /**
@@ -266,7 +264,10 @@ class Session
     protected function gc()
     {
         foreach (glob($this->session_save_path . "/sess_*") as $filename) {
-            if (filemtime($filename) + session_get_cookie_params()['lifetime'] < time()) {
+            if (
+                filemtime($filename) + session_get_cookie_params()['lifetime'] <
+                time()
+            ) {
                 @unlink($filename);
             }
         }
@@ -280,7 +281,7 @@ class Session
      */
     protected function sessionLottarygc($min = 1, $max)
     {
-        return (random_int($min, $max) === $min);
+        return random_int($min, $max) === $min;
     }
 
     /**
@@ -290,11 +291,9 @@ class Session
     public static function getInstance()
     {
         if (self::$instance === null) {
-
             self::$instance = new self();
         }
 
         return self::$instance;
     }
-
 }

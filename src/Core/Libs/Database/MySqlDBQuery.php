@@ -11,7 +11,7 @@ use PDOException;
 trait MySqlDBQuery
 {
     /**
-     * @var \PDO
+     * @var
      */
     public $dbh;
 //-------------------------
@@ -28,7 +28,7 @@ trait MySqlDBQuery
      */
     public $wheres;
     /**
-     * @var array
+     * @var
      */
     public $or_wheres;
 
@@ -49,7 +49,9 @@ trait MySqlDBQuery
      * @var
      */
     public $groupBy;
-
+    /**
+     * @var
+     */
     public $logger;
 
 
@@ -153,6 +155,9 @@ trait MySqlDBQuery
         return $this;
     }
 
+    /**
+     * @return string
+     */
     private function _wheres()
     {
         $where = '';
@@ -381,7 +386,7 @@ trait MySqlDBQuery
             $res = $this->execute_sql($sql, $this->bind_params)->rowCount();
 
         } catch (\PDOException $e) {
-            die ("Error when Delete table" . $e->getMessage());
+            die ("Error Deleting table" . $e->getMessage());
         }
 
         return $res;
