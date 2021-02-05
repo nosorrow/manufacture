@@ -16,6 +16,8 @@ namespace Core\Libs\Images;
  *
  */
 
+use Core\Libs\Exceptions\ImageException;
+
 /**
  * Class Images
  *
@@ -116,12 +118,14 @@ class Image extends File
      */
     public function save($path = null)
     {
-        if ($path == null) {
+        if ($path === null) {
             $path = $this->save_image_path;
         }
         if (!realpath(dirname($path))) {
             $dir = dirname($path);
-            mkdir($dir, 0777, true);
+            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            }
         }
 
         if ($this->image_preffix_name) {
@@ -161,7 +165,9 @@ class Image extends File
             $dir .= '/';
         }
         if (!realpath($dir)) {
-            mkdir($dir, 0777, true);
+            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            }
         }
         $path = $dir . pathinfo($this->save_image_path)['basename'];
 
@@ -196,12 +202,12 @@ class Image extends File
     {
         if ($name === null){
             return $this->manipulated_image_info;
-        } else {
-            if(!$this->manipulated_image_info[$name]){
-                throw new ImageException('No valid response found');
-            }
-            return $this->manipulated_image_info[$name];
         }
+
+        if(!$this->manipulated_image_info[$name]){
+            throw new ImageException('No valid response found');
+        }
+        return $this->manipulated_image_info[$name];
 
     }
     /*
@@ -246,7 +252,7 @@ class Image extends File
     /**
      * ob_get_contents of image for save in file
      */
-    protected function buffering()
+    public function buffering()
     {
         switch ($this->src_image_type) {
             case IMAGETYPE_JPEG:

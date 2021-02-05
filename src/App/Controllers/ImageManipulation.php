@@ -15,11 +15,12 @@ class ImageManipulation extends Controller
 
     }
 
-    public function Resize(Image $image)
+    public function resizeImage(Image $image)
     {
-        $file = PUBLIC_DIR . 'uploads/pizza.png';
+        $file = PUBLIC_DIR . 'uploads/image.jpg';
         $newpath = 'images/thumbs';
         $img = $image->get($file);
+        $x = $img->resize(350,350); header('Content-Type: image/jpeg'); echo $img->buffering();die;
         $img->resize(350,350)->withPreffix('thumb_')->move($newpath);
         $img->resize(450,450)->withPreffix('new_')->save('new/image.png');
         dump($img->imageinfo());

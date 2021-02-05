@@ -82,6 +82,7 @@ try {
 
     // Redirect to Error page
     Router::any('page/{id}', ['ErrorPage@show', 'name' => 'error']);
+
     Router::any('search', ['TestController@search']);
     Router::any('test/{lang?}', ['TestController@form', 'name' => 'test']);
     Router::any('store', ['TestController@store']);
@@ -106,6 +107,8 @@ try {
     Router::get('trans', ['Balancecontroller@trans']);
 
     Router::get('send-email', ['TestController@sendMail', 'name'=>'send']);
+
+    Router::get('resize-image', ['ImageManipulation@resizeImage'] );
 
 } catch (\Exception $e) {
     die($e->getMessage());

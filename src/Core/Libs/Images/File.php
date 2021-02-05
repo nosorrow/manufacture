@@ -51,6 +51,11 @@ class File
             throw new \Exception(sprintf("File %s not found!", $file));
         }
         $img_info = getimagesize($file);
+        if (!$img_info) {
+            throw new \Exception(
+                "Only Image file types are supported!"
+            );
+        }
 
         switch ($img_info[2]) {
             case IMAGETYPE_PNG:
