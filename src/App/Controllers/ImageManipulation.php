@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
+defined('APPLICATION_DIR') or exit('No direct Accesss here !');
 
 use Core\Controller;
 use Core\Libs\Images\Image;
@@ -30,10 +30,10 @@ class ImageManipulation extends Controller
         $path = PUBLIC_DIR . 'uploads/thumbs';
 
         $file = $request->file();
-      //  dd($file->getFile('avatar'));
+        //  dd($file->getFile('avatar'));
         $tmp_name = $file->getFile('avatar')['tmp_name'];
         $img = $image->get($tmp_name);
-        $img->resize(350,350)->withPreffix('thumb_')->move($path . "/image.jpg");
+        $img->resize(350, 350)->withPreffix('thumb_')->save($path . "/image.jpg");
         dd($tmp_name);
 
     }

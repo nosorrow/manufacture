@@ -12,10 +12,12 @@ class Resize extends AbstractExecutions
         if (count($this->arguments) > 2) {
             throw new \Exception("Too many arguments");
 
-        } elseif (count($this->arguments) == 2) {
-            list($width, $height) = $this->arguments;
+        }
 
-        } elseif (count($this->arguments) == 1){
+        if (count($this->arguments) === 2) {
+            [$width, $height] = $this->arguments;
+
+        } elseif (count($this->arguments) === 1){
             $width = $this->arguments[0];
             $height = null;
 
@@ -24,7 +26,7 @@ class Resize extends AbstractExecutions
 
         }
 
-        list($width_orig, $height_orig) = $image->src_image_info;
+        [$width_orig, $height_orig] = $image->src_image_info;
 
         return $this->resize($image->src_image, $width, $height, $width_orig, $height_orig);
     }
@@ -41,15 +43,15 @@ class Resize extends AbstractExecutions
     {
         $ratio_orig = $width_orig / $height_orig;
 
-        if ($height == null) {
+        if ($height === null) {
             $height = $width / $ratio_orig;
 
-        } elseif ($width == null) {
+        } elseif ($width === null) {
             $width = $height * $ratio_orig;
         }
 
         $dst_image = imagecreatetruecolor($width, $height);
-        if (get_resource_type($image) == 'gd'){
+        if (get_resource_type($image) === 'gd'){
             imagecopyresampled($dst_image, $image, 0, 0, 0, 0, $width, $height, $width_orig, $height_orig);
 
         }
