@@ -3,6 +3,8 @@
 namespace Core\Libs\Images;
 
 
+use Core\Libs\Exceptions\ImageException;
+
 /**
  * Class File
  * Getting file and return GD library resource
@@ -48,11 +50,11 @@ class File
     public function get($file)
     {
         if (!file_exists($file)) {
-            throw new \Exception(sprintf("File %s not found!", $file));
+            throw new ImageException(sprintf("File %s not found!", $file));
         }
         $img_info = getimagesize($file);
         if (!$img_info) {
-            throw new \Exception(
+            throw new ImageException(
                 "Only Image file types are supported!"
             );
         }
@@ -71,7 +73,7 @@ class File
                 break;
 
             default:
-                throw new \Exception(
+                throw new ImageException(
                     "Only JPG, PNG & GIF file types are supported!"
                 );
         }
