@@ -33,7 +33,7 @@ class ImageManipulation extends Controller
         //  dd($file->getFile('avatar'));
         $tmp_name = $file->getFile('avatar')['tmp_name'];
         $img = $image->get($tmp_name);
-        $img->resize(350, 350)->withPreffix('thumb_')->save($path . "/image.jpg");
+        $img->resize(50)->withPreffix('thumb_')->save($path . "/image.jpg");
         dd($tmp_name);
 
     }
