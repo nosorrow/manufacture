@@ -60,6 +60,7 @@ class Image extends File
      * @param $arguments
      * @return $this
      * @throws \ReflectionException
+     * @throws \Exception
      */
     public function __call($name, $arguments = null)
     {
@@ -70,10 +71,10 @@ class Image extends File
 
         $class = new \ReflectionClass($class_name);
 
-        $instance  = $class->newInstance($arguments);
+        $instance = $class->newInstance($arguments);
 
         $reflectionMethod = new \ReflectionMethod($class_name, 'execute');
-        $this->dst_image  = ($reflectionMethod->invoke($instance, $this));
+        $this->dst_image = $reflectionMethod->invoke($instance, $this);
 
         return $this;
     }
@@ -85,13 +86,16 @@ class Image extends File
      */
     public function getClass($class)
     {
-        $classname = sprintf('Core\Libs\Images\Executions\\%s', ucfirst($class));
+        $classname = sprintf(
+            'Core\Libs\Images\Executions\\%s',
+            ucfirst($class)
+        );
 
-        if (class_exists($classname)){
+        if (class_exists($classname)) {
             return $classname;
-        } else {
-            throw new \Exception('Commands: ' . $classname . ' is not available');
         }
+
+        throw new \Exception('Commands: ' . $classname . ' is not available');
     }
 
     /**
@@ -124,14 +128,18 @@ class Image extends File
         if (!realpath(dirname($path))) {
             $dir = dirname($path);
             if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+                throw new \RuntimeException(
+                    sprintf('Directory "%s" was not created', $dir)
+                );
             }
         }
 
         if ($this->image_preffix_name) {
-
-            $path = dirname($path) . '/' . $this->image_preffix_name . basename($path);
-
+            $path =
+                dirname($path) .
+                '/' .
+                $this->image_preffix_name .
+                basename($path);
         }
 
         if (file_put_contents($path, $this->buffering()) === false) {
@@ -140,14 +148,12 @@ class Image extends File
 
         if (is_resource($this->dst_image)) {
             imagedestroy($this->dst_image);
-
         }
         if (is_resource($this->src_image)) {
             imagedestroy($this->src_image);
         }
 
         $this->setImageInfo($path);
-
 
         return true;
     }
@@ -160,12 +166,14 @@ class Image extends File
     public function move($dir)
     {
         // ако $dir не завършва с '/'
-        if(strrpos($dir, '/') !== strlen($dir)-1){
+        if (strrpos($dir, '/') !== strlen($dir) - 1) {
             $dir .= '/';
         }
         if (!realpath($dir)) {
             if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+                throw new \RuntimeException(
+                    sprintf('Directory "%s" was not created', $dir)
+                );
             }
         }
         $path = $dir . pathinfo($this->save_image_path)['basename'];
@@ -173,7 +181,6 @@ class Image extends File
         $this->save($path);
 
         return true;
-
     }
 
     /**
@@ -199,15 +206,14 @@ class Image extends File
      */
     public function imageinfo($name = null)
     {
-        if ($name === null){
+        if ($name === null) {
             return $this->manipulated_image_info;
         }
 
-        if(!$this->manipulated_image_info[$name]){
+        if (!$this->manipulated_image_info[$name]) {
             throw new ImageException('No valid response found');
         }
         return $this->manipulated_image_info[$name];
-
     }
     /*
      * -----------------------------------------------------
@@ -227,10 +233,9 @@ class Image extends File
     protected function get_ob_png()
     {
         ob_start();
-        $resource = $this->dst_image;
-        imagealphablending($resource, false);
-        imagesavealpha($resource, true);
-        imagepng($resource, null, -1);
+        imagealphablending($this->dst_image, false);
+        imagesavealpha($this->dst_image, true);
+        imagepng($this->dst_image, null, -1);
         $data = ob_get_contents();
         ob_end_clean();
 
