@@ -34,11 +34,12 @@ class File
 
     /**
      * File constructor.
+     * @throws ImageException
      */
     public function __construct()
     {
         if (!extension_loaded('gd') && !function_exists('gd_info')) {
-            throw new Exception("GD Library extension not available with this PHP installation.");
+            throw new ImageException("GD Library extension not available with this PHP installation.");
         }
     }
 

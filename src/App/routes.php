@@ -106,10 +106,10 @@ try {
     ]);
     Router::get('trans', ['Balancecontroller@trans']);
 
-    Router::get('send-email', ['TestController@sendMail', 'name'=>'send']);
-
-    Router::get('resize-image', ['ImageManipulation@resizeImage'] );
-
+    Router::get('send-email', ['TestController@sendMail', 'name' => 'send']);
+    // testing upload & resize files
+    Router::get('upload', ['ImageManipulation@uploadForm']);
+    Router::post('resize', ['ImageManipulation@resizeImage']);
 } catch (\Exception $e) {
     die($e->getMessage());
 }

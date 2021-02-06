@@ -131,9 +131,8 @@ class Image extends File
         if ($this->image_preffix_name) {
 
             $path = dirname($path) . '/' . $this->image_preffix_name . basename($path);
-         //   $path = trim($path, '.' . '/');
+
         }
-     //   dump(($path));die;
 
         if (file_put_contents($path, $this->buffering()) === false) {
             throw new ImageException('Nothing to save !');

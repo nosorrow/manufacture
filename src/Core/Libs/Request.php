@@ -51,7 +51,9 @@ class Request
         $this->post = !empty($_POST) ? $_POST : null;
 
         if (!empty($_FILES)) {
-            $this->post = array_merge($this->post, $_FILES);
+            // TODO - Зaщо post е NULL ???
+            $post = $this->post??[];
+            $this->post = array_merge($post, $_FILES);
         }
 
         $this->get = !empty($_GET) ? $_GET : null;
