@@ -206,22 +206,21 @@ class Validator
                 foreach ($data['rules'] as $_rules) {
 
                     if (isClosure($_rules) === false) {
-                        // list($rule, $arg) = explode(':', $_rules);
                         $parsedRules = $this->parseRules($_rules);
                         $rule = $parsedRules['rule'];
                         $arg = $parsedRules['arg'];
 
-                        // Валидиране на данните
+                        // data validation
                         $run = $this->$rule($dataForValidation, $arg);
                         $label = $this->parseFieldLabel($data['field'], $data['label'], $rule);
 
-                        // Ако валидацията не мине - пълни масив с грешки
+                        // array with errors
                         if ($run === false) {
                             // delete old value
                             Arr::forget($this->old, $data['field']);
 
-                            // Ако полето е required
-                            if ($rule == 'required') {
+                            // if field is required
+                            if ($rule === 'required') {
                                 unset($this->errors->{$data['field']});
                                 $this->errors->{$data['field']} = $this->_msg($data['field'], 'required', $label, $arg);
 
@@ -233,8 +232,10 @@ class Validator
                         }
 
                     } else {
-                        // ако валидиращото правило е анонимна функция
-                        // [function($atribute, $value){ ...... }]
+                        /*
+                         * if validation rule is anonymous function
+                         * [function($atribute, $value){ ...... }]
+                        */
                         $label = ($data['label']) ? $data['label'] : $data['field'];
                         $a = call_user_func_array($_rules, [$label, $dataForValidation]);
 
@@ -273,7 +274,7 @@ class Validator
 
         foreach ($messages as $field => $msg) {
 
-            // 1. ['email' => 'O Need  a valid email address']
+            // ['email' => 'O Need  a valid email address']
             // Message for all fields under validation
             if (is_string($msg)) {
                 $this->ownMessages[$field] = $msg;
@@ -315,7 +316,7 @@ class Validator
             $label = substr($label, 1);
 
         } else {
-            $label = ($label != '') ? $label : $field;
+            $label = ($label !== '') ? $label : $field;
 
         }
 
