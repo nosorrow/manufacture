@@ -31,8 +31,17 @@ class UrlNormalizer
     private $path;
     private $query;
     private $fragment;
-    private $default_scheme_ports = array( 'http:' => 80, 'https:' => 443, );
-    private $components = array( 'scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment', );
+    private $default_scheme_ports = ['http:' => 80, 'https:' => 443];
+    private $components = [
+        'scheme',
+        'host',
+        'port',
+        'user',
+        'pass',
+        'path',
+        'query',
+        'fragment',
+    ];
     private $remove_empty_delimiters;
     private $sort_query_params;
 
@@ -47,20 +56,23 @@ class UrlNormalizer
      * @param bool|false $remove_empty_delimiters
      * @param bool|false $sort_query_params
      */
-    public function __construct($url = null, $remove_empty_delimiters = false, $sort_query_params = false)
-    {
+    public function __construct(
+        $url = null,
+        $remove_empty_delimiters = false,
+        $sort_query_params = false
+    ) {
         if ($url) {
             $this->setUrl($url);
         }
 
         $this->remove_empty_delimiters = $remove_empty_delimiters;
-        $this->sort_query_params       = $sort_query_params;
+        $this->sort_query_params = $sort_query_params;
         return $this;
     }
 
     private function getQuery($query)
     {
-        $qs = array();
+        $qs = [];
         foreach ($query as $qk => $qv) {
             if (is_array($qv)) {
                 $qs[rawurldecode($qk)] = $this->getQuery($qv);
@@ -89,7 +101,7 @@ class UrlNormalizer
         // parse URL into respective parts
         $url_components = $this->mbParseUrl($this->url);
 
-        if (! $url_components) {
+        if (!$url_components) {
             // Reset URL
             $this->url = '';
 
@@ -127,7 +139,6 @@ class UrlNormalizer
 
     public function normalize()
     {
-
         // URI Syntax Components
         // scheme authority path query fragment
         // @link https://tools.ietf.org/html/rfc3986#section-3
@@ -172,8 +183,10 @@ class UrlNormalizer
             // @link https://tools.ietf.org/html/rfc3986#section-3.2.3
 
             // Removing the default port
-            if (isset($this->default_scheme_ports[$this->scheme] )
-                    && $this->port == $this->default_scheme_ports[$this->scheme]) {
+            if (
+                isset($this->default_scheme_ports[$this->scheme]) &&
+                $this->port == $this->default_scheme_ports[$this->scheme]
+            ) {
                 $this->port = '';
             }
 
@@ -221,17 +234,19 @@ class UrlNormalizer
                         if ($i > 0) {
                             $this->query .= '&';
                         }
-                        $this->query .= rawurlencode($key) . '=' . rawurlencode($val[$i]);
+                        $this->query .=
+                            rawurlencode($key) . '=' . rawurlencode($val[$i]);
                     }
                 } else {
-                    $this->query .= rawurlencode($key) . '=' . rawurlencode($val);
+                    $this->query .=
+                        rawurlencode($key) . '=' . rawurlencode($val);
                 }
             }
 
             // Fix http_build_query adding equals sign to empty keys
             $this->query = str_replace('=&', '&', rtrim($this->query, '='));
         } else {
-            if ($this->query_delimiter && ! $this->remove_empty_delimiters) {
+            if ($this->query_delimiter && !$this->remove_empty_delimiters) {
                 $this->query = '?';
             }
         }
@@ -245,7 +260,13 @@ class UrlNormalizer
             $this->fragment = '#' . $this->fragment;
         }
 
-        $this->setUrl($this->scheme . $authority . $this->path . $this->query . $this->fragment);
+        $this->setUrl(
+            $this->scheme .
+                $authority .
+                $this->path .
+                $this->query .
+                $this->fragment
+        );
 
         return $this->getUrl();
     }
@@ -258,22 +279,29 @@ class UrlNormalizer
     {
         $new_path = '';
 
-        while (! empty($path)) {
-             // A
-            $pattern_a   = '!^(\.\./|\./)!x';
+        while (!empty($path)) {
+            // A
+            $pattern_a = '!^(\.\./|\./)!x';
             $pattern_b_1 = '!^(/\./)!x';
             $pattern_b_2 = '!^(/\.)$!x';
-            $pattern_c   = '!^(/\.\./|/\.\.)!x';
-            $pattern_d   = '!^(\.|\.\.)$!x';
-            $pattern_e   = '!(/*[^/]*)!x';
+            $pattern_c = '!^(/\.\./|/\.\.)!x';
+            $pattern_d = '!^(\.|\.\.)$!x';
+            $pattern_e = '!(/*[^/]*)!x';
 
             if (preg_match($pattern_a, $path)) {
                 // remove prefix from $path
                 $path = preg_replace($pattern_a, '', $path);
-            } elseif (preg_match($pattern_b_1, $path, $matches) || preg_match($pattern_b_2, $path, $matches)) {
+            } elseif (
+                preg_match($pattern_b_1, $path, $matches) ||
+                preg_match($pattern_b_2, $path, $matches)
+            ) {
                 $path = preg_replace("!^" . $matches[1] . "!", '/', $path);
             } elseif (preg_match($pattern_c, $path, $matches)) {
-                $path = preg_replace('!^' . preg_quote($matches[1], '!') . '!x', '/', $path);
+                $path = preg_replace(
+                    '!^' . preg_quote($matches[1], '!') . '!x',
+                    '/',
+                    $path
+                );
 
                 // remove the last segment and its preceding "/" (if any) from output buffer
                 $new_path = preg_replace('!/([^/]+)$!x', '', $new_path);
@@ -283,7 +311,12 @@ class UrlNormalizer
                 if (preg_match($pattern_e, $path, $matches)) {
                     $first_path_segment = $matches[1];
 
-                    $path = preg_replace('/^' . preg_quote($first_path_segment, '/') . '/', '', $path, 1);
+                    $path = preg_replace(
+                        '/^' . preg_quote($first_path_segment, '/') . '/',
+                        '',
+                        $path,
+                        1
+                    );
 
                     $new_path .= $first_path_segment;
                 }
@@ -307,7 +340,7 @@ class UrlNormalizer
     {
         $string = rawurldecode($string);
         $string = rawurlencode($string);
-        $string = str_replace(array( '%2F', '%3A', '%40' ), array( '/', ':', '@' ), $string);
+        $string = str_replace(['%2F', '%3A', '%40'], ['/', ':', '@'], $string);
 
         return $string;
     }
@@ -320,8 +353,20 @@ class UrlNormalizer
     public function urlDecodeReservedSubDelimChars($string)
     {
         return str_replace(
-            array( '%21', '%24', '%26', '%27', '%28', '%29', '%2A', '%2B', '%2C', '%3B', '%3D' ),
-            array( '!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '=' ),
+            [
+                '%21',
+                '%24',
+                '%26',
+                '%27',
+                '%28',
+                '%29',
+                '%2A',
+                '%2B',
+                '%2C',
+                '%3B',
+                '%3D',
+            ],
+            ['!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '='],
             $string
         );
     }
@@ -334,23 +379,23 @@ class UrlNormalizer
      */
     private function parseStr($string)
     {
-        $params = array();
-                
+        $params = [];
+
         $pairs = explode('&', $string);
 
         foreach ($pairs as $pair) {
-            if (! $pair) {
+            if (!$pair) {
                 continue;
             }
 
             $var = explode('=', $pair, 2);
-            $val = ( isset( $var[1] ) ? $var[1] : '' );
+            $val = isset($var[1]) ? $var[1] : '';
 
             if (isset($params[$var[0]])) {
                 if (is_array($params[$var[0]])) {
                     $params[$var[0]][] = $val;
                 } else {
-                    $params[$var[0]] = array($params[$var[0]], $val);
+                    $params[$var[0]] = [$params[$var[0]], $val];
                 }
             } else {
                 $params[$var[0]] = $val;
@@ -365,8 +410,44 @@ class UrlNormalizer
         $result = false;
 
         // Build arrays of values we need to decode before parsing
-        $entities = array('%21', '%2A', '%27', '%28', '%29', '%3B', '%3A', '%40', '%26', '%3D', '%24', '%2C', '%2F', '%3F', '%23', '%5B', '%5D');
-        $replacements = array('!', '*', "'", "(", ")", ";", ":", "@", "&", "=", "$", ",", "/", "?", "#", "[", "]");
+        $entities = [
+            '%21',
+            '%2A',
+            '%27',
+            '%28',
+            '%29',
+            '%3B',
+            '%3A',
+            '%40',
+            '%26',
+            '%3D',
+            '%24',
+            '%2C',
+            '%2F',
+            '%3F',
+            '%23',
+            '%5B',
+            '%5D',
+        ];
+        $replacements = [
+            '!',
+            '*',
+            "'",
+            "(",
+            ")",
+            ";",
+            ":",
+            "@",
+            "&",
+            "=",
+            "$",
+            ",",
+            "/",
+            "?",
+            "#",
+            "[",
+            "]",
+        ];
 
         // Create encoded URL with special URL characters decoded so it can be parsed
         // All other characters will be encoded
@@ -378,7 +459,9 @@ class UrlNormalizer
         // Now, decode each value of the resulting array
         if ($encodedParts) {
             foreach ($encodedParts as $key => $value) {
-                $result[$key] = urldecode(str_replace($replacements, $entities, $value));
+                $result[$key] = urldecode(
+                    str_replace($replacements, $entities, $value)
+                );
             }
         }
         return $result;

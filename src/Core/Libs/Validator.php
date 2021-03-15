@@ -125,7 +125,7 @@ class Validator
      */
     public function make($field, $label = null, $rules = null, $customMsg = null)
     {
-        // 1. parse $field if input in an array and have wildcard like (emails.*)
+        // parse $field if input in an array and have wildcard like (emails.*)
         // will return array of replaced field key in dot notation => [emails.1, emails.2, emails.3]
         // with their values from
 
@@ -147,7 +147,7 @@ class Validator
                 foreach ($implicitAttributesData as $field_name => $dataforvalidation) {
                     $this->parsed_rule_data[$field_name] = $this->createRulesDataArray($field_name, $value['label'], $dataforvalidation, $value['rules']);
 
-                    if ($value['message'] && $customMsg == null) {
+                    if ($value['message'] && $customMsg === null) {
                         // $custoMsg = ['field.rule'=>'message']
                         $message = $this->parseCustomMsgFromArray($field_name, $value['message']);
                         $this->ownFieldMessages[$field_name] = $message;
@@ -201,7 +201,6 @@ class Validator
         if (count($this->parsed_rule_data) > 0) {
 
             foreach ($this->parsed_rule_data as $data) {
-
                 $dataForValidation = $data['value'];
 
                 foreach ($data['rules'] as $_rules) {
@@ -214,7 +213,6 @@ class Validator
 
                         // Валидиране на данните
                         $run = $this->$rule($dataForValidation, $arg);
-
                         $label = $this->parseFieldLabel($data['field'], $data['label'], $rule);
 
                         // Ако валидацията не мине - пълни масив с грешки
@@ -253,7 +251,7 @@ class Validator
 
         $has_errors = $this->errors->any();
 
-        return (bool)$has_errors === false;
+        return $has_errors === false;
     }
 
     /**

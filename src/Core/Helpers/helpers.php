@@ -1,4 +1,5 @@
 <?php
+defined('APPLICATION_DIR') or exit('No direct Accesss here !');
 
 use Core\Libs\Support\Facades\Config;
 use Core\Libs\Support\NormalizeData;
@@ -15,25 +16,22 @@ use Core\Libs\Support\NormalizeData as Normalize;
 use Core\Libs\Encryption\Encrypter;
 use Core\Libs\Encryption\EncryptionService;
 
-defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
-
 // ---  System  ---
 /**
  * @param  string  $version
- *
  * @return  bool
  */
-function is_php($version = '5.0.0')
+function is_php($version = '7.0.0')
 {
     static $phpVer;
     $version = (string) $version;
 
-    if ( ! isset($phpVer[ $version ]))
-    {
-        $phpVer[ $version ] = (version_compare(PHP_VERSION, $version) < 0) ? false : true;
+    if (!isset($phpVer[$version])) {
+        $phpVer[$version] =
+            version_compare(PHP_VERSION, $version) >= 0;
     }
 
-    return $phpVer[ $version ];
+    return $phpVer[$version];
 }
 
 /**
@@ -53,16 +51,16 @@ if (!function_exists('app')) {
 
         return $container->get($name);
     }
-
 }
 
 if (!function_exists('dd')) {
     /**
      * @param mixed ...$value
      */
-    function dd(...$value){
+    function dd(...$value)
+    {
         dump(...$value);
-        exit;
+        exit();
     }
 }
 
@@ -75,7 +73,6 @@ if (!function_exists('config')) {
     function config($key, $domain = Config::DOMAIN)
     {
         return Config::get($key, $domain);
-
     }
 }
 
@@ -87,12 +84,10 @@ if (!function_exists('isClosure')) {
      */
     function isClosure($suspected_closure)
     {
-
         if (is_callable($suspected_closure)) {
             $reflection = new \ReflectionFunction($suspected_closure);
 
-            return (bool)$reflection->isClosure();
-
+            return (bool) $reflection->isClosure();
         }
 
         return false;
@@ -119,9 +114,8 @@ if (!function_exists('dot_notation_dir')) {
      */
     function dot_notation_dir($name)
     {
-        if(strpos($name, '.') !== false){
-           return str_replace('.', DIRECTORY_SEPARATOR, $name);
-
+        if (strpos($name, '.') !== false) {
+            return str_replace('.', DIRECTORY_SEPARATOR, $name);
         } else {
             return $name;
         }
@@ -278,7 +272,8 @@ if (!function_exists('array_map_recursive')) {
      * @param array $array
      * @return mixed
      */
-    function array_map_recursive(callable $func, array $array) {
+    function array_map_recursive(callable $func, array $array)
+    {
         return filter_var($array, \FILTER_CALLBACK, ['options' => $func]);
     }
 }
@@ -288,7 +283,6 @@ if (!function_exists('array_map_recursive')) {
  */
 
 if (!function_exists('uri')) {
-
     /**
      * @return mixed
      * @throws ReflectionException
@@ -328,12 +322,13 @@ if (!function_exists('route_url')) {
         //$container = app(Router::class);
         $container = app(Uri::class);
 
-        return site_url($container->route($routename, $params, $request_method)->route);
+        return site_url(
+            $container->route($routename, $params, $request_method)->route
+        );
     }
 }
 
 if (!function_exists('redirect')) {
-
     /**
      * redirect()->to('home')->with('msg', 'Login Page')
      * redirect()->route('home')
@@ -347,18 +342,15 @@ if (!function_exists('redirect')) {
         $container = app(\Core\Libs\Redirector::class);
         if ($uri !== null) {
             $container->to($uri);
-
         } else {
             return $container;
         }
-
     }
 }
 
 // ---     Request Helpers      --- //
 
 if (!function_exists('request_post')) {
-
     /**
      * @param $name
      * @param null $normalize
@@ -370,11 +362,9 @@ if (!function_exists('request_post')) {
 
         return $container->post($name, $normalize);
     }
-
 }
 
 if (!function_exists('request_get')) {
-
     /**
      * @param $name
      * @param null $normalize
@@ -386,13 +376,11 @@ if (!function_exists('request_get')) {
 
         return $container->get($name, $normalize);
     }
-
 }
 
 // ---      Cookies ---
 
 if (!function_exists('set_cookie')) {
-
     /**
      * @param $name
      * @param $value
@@ -404,11 +392,9 @@ if (!function_exists('set_cookie')) {
 
         $container->set_cookie($name, $value);
     }
-
 }
 
 if (!function_exists('get_cookie')) {
-
     /**
      * @param $name
      * @return mixed
@@ -419,13 +405,11 @@ if (!function_exists('get_cookie')) {
 
         return $container->cookie($name);
     }
-
 }
 
 /*  -- Validation Helpers --- */
 
 if (!function_exists('validator')) {
-
     /**
      * @param $data
      * @return mixed
@@ -436,11 +420,9 @@ if (!function_exists('validator')) {
 
         return $validator->for($data);
     }
-
 }
 
 if (!function_exists('oldValue')) {
-
     /**
      * При неуспешна валидация връща стойността на полето.
      * @param $field
@@ -453,10 +435,10 @@ if (!function_exists('oldValue')) {
         $Obj = Validator::getInstance();
 
         if ($Obj->hasErrors() === true) {
-            return ($html_decode) ? htmlspecialchars_decode($Obj->request->input($field)) : $Obj->request->input($field);
-
+            return $html_decode
+                ? htmlspecialchars_decode($Obj->request->input($field))
+                : $Obj->request->input($field);
         } else {
-
             return '';
         }
     }
@@ -476,7 +458,6 @@ if (!function_exists('has_error')) {
 }
 
 if (!function_exists('validation_error')) {
-
     /**
      * Показва съобщеие за грешки при валидация на форма
      * @param $field
@@ -488,11 +469,13 @@ if (!function_exists('validation_error')) {
         $Obj = Validator::getInstance();
 
         if ($Obj->hasErrors($field) === true) {
-
-            return $Obj->errors($field, '', '', '<span style="color:#c9302c">%s</span>');
-
+            return $Obj->errors(
+                $field,
+                '',
+                '',
+                '<span style="color:#c9302c">%s</span>'
+            );
         } else {
-
             return '';
         }
     }
@@ -504,7 +487,6 @@ if (!function_exists('validation_error')) {
  * using of blade directive @csrf
  */
 if (!function_exists('csrf_field')) {
-
     function csrf_field()
     {
         $container = app(Csrf::class);
@@ -517,7 +499,6 @@ if (!function_exists('csrf_field')) {
  * using of blade directive @csrf
  */
 if (!function_exists('csrf')) {
-
     function csrf()
     {
         csrf_field();
@@ -533,14 +514,16 @@ if (!function_exists('method_field')) {
      */
     function method_field($method)
     {
-        return ('<input type="hidden" name="_method" value="' . $method . '">' . PHP_EOL);
+        return '<input type="hidden" name="_method" value="' .
+            $method .
+            '">' .
+            PHP_EOL;
     }
 }
 
 //---       Render View  Helpers  ---
 
 if (!function_exists('setLayout')) {
-
     /**
      * use: setLayout('dashboard')->render('result', $data);
      *
@@ -559,7 +542,6 @@ if (!function_exists('setLayout')) {
  *  Render View file
  */
 if (!function_exists('view')) {
-
     /**
      *  Render View
      *
@@ -572,26 +554,21 @@ if (!function_exists('view')) {
         $container = app(View::class);
 
         $container->render($name, $data);
-
     }
 }
 
 if (!function_exists('partial')) {
-
-    function partial($partial){
-
-        if (strpos($partial, '.')){
+    function partial($partial)
+    {
+        if (strpos($partial, '.')) {
             $partial = str_replace('.', DIRECTORY_SEPARATOR, $partial);
         }
         $path = VIEW_DIR . "Partials" . DIRECTORY_SEPARATOR . $partial . ".php";
-        if (file_exists($path)){
-
-           return $path;
-
+        if (file_exists($path)) {
+            return $path;
         } else {
             throw new \Exception(sprintf("The (%s) not found", $path));
         }
-
     }
 }
 
@@ -621,16 +598,14 @@ if (!function_exists('resc')) {
     function resc($data)
     {
         return array_map(function ($item) {
-            //Recursiv
+            //Recursive
             if (is_array($item)) {
                 return resc($item);
-            } else {
-                return htmlspecialchars($item, ENT_QUOTES, 'UTF-8', true);
-
             }
+
+            return htmlspecialchars($item, ENT_QUOTES, 'UTF-8', true);
         }, $data);
     }
-
 }
 
 if (!function_exists('xss')) {
@@ -656,8 +631,7 @@ if (!function_exists('xss_clean')) {
     }
 }
 
-
-if (!file_exists('escd')) {
+if (!function_exists('escd')) {
     /**
      * htmlspecialchars_decode
      * @param string $data
@@ -667,7 +641,6 @@ if (!file_exists('escd')) {
     {
         return htmlspecialchars_decode($data, ENT_QUOTES);
     }
-
 }
 
 // --- Directory & file helpers ---
@@ -688,7 +661,10 @@ if (!function_exists('erdir')) {
         $del = [];
 
         $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            new \RecursiveDirectoryIterator(
+                $dir,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
 
@@ -696,21 +672,17 @@ if (!function_exists('erdir')) {
             if ($fileinfo->isFile()) {
                 $del[] = unlink($fileinfo->getRealPath());
             }
-
         }
 
         if (in_array(false, $del)) {
             return false;
-        } else {
-            return true;
         }
 
+        return true;
     }
-
 }
 
 if (!function_exists('rrmdir')) {
-
     /**
      *
      * Recursive delete dir
@@ -725,24 +697,26 @@ if (!function_exists('rrmdir')) {
         }
 
         $files = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            new \RecursiveDirectoryIterator(
+                $dir,
+                RecursiveDirectoryIterator::SKIP_DOTS
+            ),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
 
         foreach ($files as $fileinfo) {
-            $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+            $todo = $fileinfo->isDir() ? 'rmdir' : 'unlink';
             $todo($fileinfo->getRealPath());
         }
         if (rmdir($dir)) {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 }
 
 if (!function_exists('get_file_extension')) {
-
     function get_file_extension($file)
     {
         $info = new \SplFileInfo($file);
@@ -771,10 +745,13 @@ if (!function_exists('encrypt')) {
      * @param bool $serialize
      * @return mixed
      */
-    function encrypt($value, $serialize = true){
-        return app(EncryptionService::class)->encrypter->encrypt($value, $serialize);
+    function encrypt($value, $serialize = true)
+    {
+        return app(EncryptionService::class)->encrypter->encrypt(
+            $value,
+            $serialize
+        );
     }
-
 }
 
 if (!function_exists('decrypt')) {
@@ -782,11 +759,15 @@ if (!function_exists('decrypt')) {
      * @param $value
      * @param bool $serialize
      * @return mixed
+     * @throws ReflectionException
      */
-    function decrypt($payload, $unserialize = true){
-        return app(EncryptionService::class)->encrypter->decrypt($payload, $unserialize);
+    function decrypt($payload, $unserialize = true)
+    {
+        return app(EncryptionService::class)->encrypter->decrypt(
+            $payload,
+            $unserialize
+        );
     }
-
 }
 
 if (!function_exists("passwordHash")) {
@@ -812,9 +793,9 @@ if (!function_exists('trimValues')) {
     {
         if (!is_array($item)) {
             return trim($item);
-        } else {
-            return array_map('trimValues', $item);
         }
+
+        return array_map('trimValues', $item);
     }
 }
 
@@ -829,12 +810,10 @@ if (!function_exists('data_normalize')) {
     {
         if (!is_array($item)) {
             $item = Normalize::filter($item, $rules);
-
         } else {
             array_walk_recursive($item, function (&$v) use ($rules) {
                 $v = Normalize::filter($v, $rules);
             });
-
         }
     }
 }
@@ -919,7 +898,6 @@ if (!function_exists('array_only')) {
 }
 
 if (!function_exists('array_random')) {
-
     /**
      * $array = [1, 2, 3, 4, 5];
      * $random = array_random($array);
@@ -937,7 +915,6 @@ if (!function_exists('array_random')) {
 }
 
 if (!function_exists('array_collapse')) {
-
     /**
      * Collapse an array of arrays into a single array.
      * $array = Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);

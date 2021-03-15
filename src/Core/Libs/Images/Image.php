@@ -169,12 +169,10 @@ class Image extends File
         if (strrpos($dir, '/') !== strlen($dir) - 1) {
             $dir .= '/';
         }
-        if (!realpath($dir)) {
-            if (!mkdir($dir, 0777, true) && !is_dir($dir)) {
-                throw new \RuntimeException(
-                    sprintf('Directory "%s" was not created', $dir)
-                );
-            }
+        if (!realpath($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
+            throw new \RuntimeException(
+                sprintf('Directory "%s" was not created', $dir)
+            );
         }
         $path = $dir . pathinfo($this->save_image_path)['basename'];
 
