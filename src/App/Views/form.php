@@ -3,7 +3,7 @@
     <h3 class="text-center">Login form</h3>
     <div class="row justify-content-md-center">
         <div class="col-md-12">
-            <form method="post" action="<?php echo site_url('store'); ?>" enctype="multipart/form-data">
+            <form method="post" action="<?php echo site_url('store-blade'); ?>" enctype="multipart/form-data">
                 <?php csrf(); ?>
                 <div class="form-group">
                     <label for="email">Email address</label>

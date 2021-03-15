@@ -22,7 +22,7 @@ class TestController extends Controller
 
     public function form()
     {
-        view('form-search');
+        view('form');
     }
 
     /**
@@ -66,12 +66,14 @@ class TestController extends Controller
         echo $link . " " . $lang;
     }
 
+
     public function testStoreBlade(Request $request, Validator $validator)
     {
         echo "testStoreBlade ID: " . ($request->id);
         var_dump(($request->cookie('manufacture')));
         // die;
         parse_str(file_get_contents("php://input"), $q);
+
         $validator->for($request)
             ->make('email', 'Email address', ['required'])
             //      ->make('pass', 'Enter Password', ['required', 'min:3'])
