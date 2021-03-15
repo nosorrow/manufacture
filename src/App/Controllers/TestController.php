@@ -45,19 +45,6 @@ class TestController extends Controller
      */
     public function testBlade(Finder $finder)
     {
-        /*$data['valid'] = (Url::full() == Url::previous()) ? 'is-valid' : null;
-
-            $p2 = $cart->add(['id' => '45', 'qty' => '2', 'price' => '100.24', 'name' => 'Jeans',
-                'variations'=>[
-                    'color'=>'white',
-                    'dimension'=>[
-                        'size'=>'M'
-                    ]
-                ]
-            ]);
-        dd($cart->getCart());*/
-       // view('blade.homepage', $data);
-
        $finder->files()->in('js')->name('*.js');
 
         foreach ($finder as $file) {
@@ -97,11 +84,7 @@ class TestController extends Controller
             redirect()->back();
         }
 
-        $data = ['name' => $request->post('email')];
 
-        if (DB::table('test')->insert($data)) {
-            redirect()->to('blade')->with('success', 'all is Ok!');
-        }
     }
 
     public function ajax()
@@ -116,9 +99,6 @@ class TestController extends Controller
 
     public function search(Request $request, Csrf $csrf)
     {
-
-        ValidatorFacade::for($request)
-            ->ruleFor('email', _t('поща'), ['required', 'email']);
 
         $validation = $request->validation()
             ->make('email', _t('поща'), ['required', 'email'])

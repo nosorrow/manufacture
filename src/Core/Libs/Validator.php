@@ -7,7 +7,7 @@
  *
  * $validator = new \Libs\Validator
  *
- * $validator->validate($data)
+ * $validator->for($data)
  *          ->make('checkin', 'пристигане' ,['required', 'min:2', 'max:15'])
  *          ->make('checkout', 'заминаване' ,['min:2', 'max:15'])->run();
  *
@@ -199,7 +199,7 @@ class Validator
     {
         return $this->make($field, $label, $rules, $customMsg);
     }
-    
+
     /**
      * @return bool
      * @throws \ReflectionException
