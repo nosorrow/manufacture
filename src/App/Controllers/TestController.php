@@ -117,8 +117,8 @@ class TestController extends Controller
     public function search(Request $request, Csrf $csrf)
     {
 
-//        //ValidatorFacade::forData($data)
-//            ->ruleFor()
+        ValidatorFacade::for($request)
+            ->ruleFor('email', _t('поща'), ['required', 'email']);
 
         $validation = $request->validation()
             ->make('email', _t('поща'), ['required', 'email'])

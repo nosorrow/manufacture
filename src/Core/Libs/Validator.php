@@ -189,6 +189,18 @@ class Validator
     }
 
     /**
+     * @param $field
+     * @param null $label
+     * @param null $rules
+     * @param null $customMsg
+     * @return $this
+     */
+    public function ruleFor($field, $label = null, $rules = null, $customMsg = null): Validator
+    {
+        return $this->make($field, $label, $rules, $customMsg);
+    }
+    
+    /**
      * @return bool
      * @throws \ReflectionException
      */
