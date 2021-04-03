@@ -5,4 +5,4 @@ public/*
 !public/index.php
 !public/.htaccess
 !public/favicon.ico
-src\Core\Libs\Utils\Arrays.php
+src\App\Controllers\TestController

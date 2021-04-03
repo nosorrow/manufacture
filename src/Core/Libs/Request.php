@@ -38,14 +38,11 @@ class Request
 
     public $parameterBag;
 
-    public $id;
-
     /**
      * Request constructor.
      */
     private function __construct()
     {
-        $this->id = bin2hex(random_bytes(3));
         $parameters = ['post' => $_POST];
 
         $this->session = Session::getInstance();
@@ -226,16 +223,14 @@ class Request
      */
     public function get($index = null, $normalize = null)
     {
-        $get = $this->getInputData($this->get, $index, $normalize);
-
-        return $get;
+        return $this->getInputData($this->get, $index, $normalize);
     }
 
     public function getAll($normalize = null)
     {
         $get = trimValues($this->get);
 
-        if ($normalize != null) {
+        if ($normalize !== null) {
             data_normalize($get, $normalize);
         }
 

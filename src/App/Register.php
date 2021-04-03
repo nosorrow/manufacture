@@ -29,7 +29,6 @@ class Register
      */
     public $routeMiddleware = [
         'Auth' => \App\Middleware\Auth::class,
-        'test' => \App\Middleware\RequestTest::class,
         'Cors'=> \App\Middleware\Cors::class
     ];
 

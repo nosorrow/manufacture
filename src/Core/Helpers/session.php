@@ -119,5 +119,6 @@ if (!function_exists('old')) {
             session_delete('_old_input.'.$key);
             return $old;
         }
+        return null;
     }
 }

@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
 
-use App\Libraries\Cart;
 use Core\Controller;
 use Core\Libs\{Request, Response, Csrf, Validator};
 use Core\Libs\Support\Facades\{Url, DB, Validator as ValidatorFacade};
@@ -12,6 +11,7 @@ use Symfony\Component\Finder\Finder;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+use Core\Libs\Support\Arr;
 
 class TestController extends Controller
 {
@@ -23,6 +23,25 @@ class TestController extends Controller
     public function form()
     {
         view('form');
+    }
+
+    public function testStoreBlade(Request $request, Validator $validator)
+    {
+        $validator->for($request)
+            ->make('email', 'Email address', ['required'])
+            //      ->make('pass', 'Enter Password', ['required', 'min:3'])
+            //      ->make('passwordconfirm', 'Confirm password', ['required', 'match:pass'])
+            ->make('agree', 'Agree', ['required']);
+
+        $validator->message(['required' => 'Please fill this field']);
+
+        if ($validator->run() === false) {
+           // return view('form');
+            redirect()->back();
+        }
+
+        dump($request->input());
+
     }
 
     /**
@@ -64,29 +83,6 @@ class TestController extends Controller
         $url = url($uri);
         $link = "<a href='$url'>En</a>";
         echo $link . " " . $lang;
-    }
-
-
-    public function testStoreBlade(Request $request, Validator $validator)
-    {
-        echo "testStoreBlade ID: " . ($request->id);
-        var_dump(($request->cookie('manufacture')));
-        // die;
-        parse_str(file_get_contents("php://input"), $q);
-
-        $validator->for($request)
-            ->make('email', 'Email address', ['required'])
-            //      ->make('pass', 'Enter Password', ['required', 'min:3'])
-            //      ->make('passwordconfirm', 'Confirm password', ['required', 'match:pass'])
-            ->make('agree', 'Agree', ['required']);
-
-        // $validator->message(['required' => 'Please fill this field']);
-
-        if ($validator->run() === false) {
-            redirect()->back();
-        }
-
-
     }
 
     public function ajax()
