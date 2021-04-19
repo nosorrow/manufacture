@@ -216,7 +216,7 @@ trait ValidationRules
      */
     public function gte($str, $field)
     {
-        return is_numeric($str) ? (bool)((int)$str >= (int)$this->getValue($field)) : false;
+        return is_numeric($str) ? (int)$str >= (int)$this->getValue($field) : false;
     }
 
     /**
