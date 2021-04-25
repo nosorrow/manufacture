@@ -59,7 +59,7 @@ class Arr extends LaravelArr
      *
      * $sorted = Arr:orderby($data, 'volume', SORT_DESC, 'edition', SORT_ASC);
      */
-    function orderby()
+    public static function orderby()
     {
         $args = func_get_args();
         $data = array_shift($args);
