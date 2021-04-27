@@ -373,26 +373,15 @@ class Validator
     protected function getComparableFieldName($rule, $arg)
     {
         switch ($rule) {
-            case 'match':
-                $arg = ($this->parsed_rule_data[$arg]['label']) ? $arg = $this->parsed_rule_data[$arg]['label'] : $arg;
-
-                break;
-
             case 'different':
-                $arg = ($this->parsed_rule_data[$arg]['label']) ? $arg = $this->parsed_rule_data[$arg]['label'] : $arg;
+            case 'match':
+                $arg = ($this->parsed_rule_data[$arg]['label']) ? $this->parsed_rule_data[$arg]['label'] : $arg;
 
                 break;
 
             // не искам да показва името на плето а неговата стойност / дата след 2016-05-20 /
-            case 'before':
-                if (!$this->date($arg)) {
-                    $arg = $this->parsed_rule_data[$arg]['value'];
-
-                }
-
-                break;
-
             case 'after':
+            case 'before':
                 if (!$this->date($arg)) {
                     $arg = $this->parsed_rule_data[$arg]['value'];
 
