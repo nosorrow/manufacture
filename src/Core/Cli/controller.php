@@ -24,7 +24,7 @@ function controller($path)
 
 {$controllerNamespace}
 
-defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
+defined('APPLICATION_DIR') OR exit('No direct Access here!');
 
 use Core\Controller;
 use Core\Libs\{Request, Response, Csrf, Validator};
@@ -35,8 +35,7 @@ class $className extends Controller
     public function __construct()
     {
         parent::__construct();
-
-
+        
     }
 
 }

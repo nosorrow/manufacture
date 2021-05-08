@@ -6,15 +6,18 @@ use Core\Libs\Support\Facades\Config;
 use Core\Libs\Pagination;
 use Core\Libs\Support\Facades\Log;
 use Core\Libs\Support\Facades\Url;
+use Exception;
+use Monolog\Formatter\HtmlFormatter;
+use PDO;
 use PDOException;
+use stdClass;
 
 trait MySqlDBQuery
 {
     /**
      * @var
      */
-    public $dbh;
-//-------------------------
+    public PDO $dbh;
     /**
      * @var
      */
@@ -40,7 +43,6 @@ trait MySqlDBQuery
      * @var
      */
     public $orderBy;
-
     /**
      * @var
      */
@@ -54,43 +56,12 @@ trait MySqlDBQuery
      */
     public $logger;
 
-
-    public function connection(\PDO $connection = null)
+    /**
+     * @param \PDO $connection
+     */
+    public function connection(PDO $connection)
     {
         $this->dbh = $connection;
-
-        // $this->dbh = MySqlPDOConnection::getInstance()->getConnection();
-    }
-
-    /**
-     * Executing raw sql query
-     * @param $sql
-     * @param null $args
-     * @return \PDOStatement
-     * @throws \Exception
-     */
-    public function execute_sql($sql, $args = NULL)
-    {
-        try {
-            $stmt = $this->dbh->prepare($sql);
-
-            $stmt->execute($args);
-
-        } catch (PDOException $e) {
-            if (Config::getConfigFromFile("environment") !== "production") {
-                echo $e->getCode() . ' <br>' . $e->getMessage() . '<br>' . $e->getTraceAsString();
-
-            } else {
-                $log = 'DB Error:' . $e->getCode() . ' ' . $e->getMessage();
-                Log::channel('database', 'db_errors.html', \Monolog\Formatter\HtmlFormatter::class)
-                    ->error($log, [$e->getTraceAsString()]);
-                die('You do not do this! Possible database problem!');
-            }
-        }
-
-        $this->_reset();
-
-        return $stmt;
     }
 
     /**
@@ -102,6 +73,8 @@ trait MySqlDBQuery
      * or
      * ->where('name', ' LIKE ', 'Jhon%')
      * @param $field
+     * @param string $operator
+     * @param string $data
      * @return $this
      */
     public function where($field, $operator = '', $data = '')
@@ -109,8 +82,8 @@ trait MySqlDBQuery
 
         if (is_array($field) === true) {
 
-            foreach ($field as $k => $v) {
-                list($fname, $op, $data) = $v;
+            foreach ($field as $v) {
+                [$fname, $op, $data] = $v;
 
                 $this->wheres .= $fname . $op . ' ? ' . 'AND ';
                 $this->bind_params[] = $data;
@@ -136,7 +109,7 @@ trait MySqlDBQuery
     public function or_where($field, $operator = '', $data = '')
     {
         if (!isset($this->wheres)) {
-            throw new \Exception('Не може да създаде sql заявка без where клауза');
+            throw new Exception('Не може да създаде sql заявка без where клауза');
         }
         if (is_array($field) === true) {
 
@@ -153,24 +126,6 @@ trait MySqlDBQuery
             $this->bind_params[] = $data;
         }
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    private function _wheres()
-    {
-        $where = '';
-
-        if (isset($this->wheres)) {
-
-            $where = " WHERE " . $this->wheres;
-
-            if (isset($this->or_wheres)) {
-                $where .= $this->or_wheres;
-            }
-        }
-        return $where;
     }
 
     /**
@@ -200,12 +155,6 @@ trait MySqlDBQuery
         return $this;
     }
 
-    public function rawLimit($str)
-    {
-        $this->limit = $str;
-        return $this;
-    }
-
     /**
      * @param $field
      * @return $this
@@ -229,6 +178,15 @@ trait MySqlDBQuery
     }
 
     /**
+     * @param mixed ...$field_name
+     * @return MySqlDBQuery
+     */
+    public function select(...$field_name)
+    {
+        return $this->field(...$field_name);
+    }
+
+    /**
      *  Select column of table
      * 'SELECT name, email FROM users'
      * @param mixed ...$field_name
@@ -246,12 +204,60 @@ trait MySqlDBQuery
     }
 
     /**
-     * @param mixed ...$field_name
-     * @return MySqlDBQuery
+     * Get all records as generator
+     * @param int $fetch_style
+     * @return \Generator
+     * @throws \Exception
      */
-    public function select(...$field_name)
+    public function yield($fetch_style = PDO::FETCH_OBJ)
     {
-        return $this->field(...$field_name);
+        $stmt = $this->execute_sql($this->_select(), $this->bind_params);
+
+        while ($result = $stmt->fetch($fetch_style)) {
+            yield $result;
+
+        }
+
+    }
+
+    /**
+     * Executing raw sql query
+     * @param $sql
+     * @param null $args
+     * @return \PDOStatement
+     * @throws \Exception
+     */
+    public function execute_sql($sql, $args = NULL)
+    {
+        try {
+            $stmt = $this->dbh->prepare($sql);
+
+            $stmt->execute($args);
+
+        } catch (PDOException $e) {
+            if (Config::getConfigFromFile("environment") !== "production") {
+                echo $e->getCode() . ' <br>' . $e->getMessage() . '<br>' . $e->getTraceAsString();
+
+            } else {
+                $log = 'DB Error:' . $e->getCode() . ' ' . $e->getMessage();
+                Log::channel('database', 'db_errors.html', HtmlFormatter::class)
+                    ->critical($log, [$e->getTraceAsString()]);
+                die('You do not do this! Possible database problem!');
+            }
+        }
+
+        $this->_reset();
+
+        return $stmt;
+    }
+
+    /**
+     * Reset all
+     */
+    protected function _reset()
+    {
+        unset($this->bind_params, $this->wheres, $this->or_wheres, $this->orderBy,
+            $this->limit, $this->groupBy, $this->field_name);
     }
 
     /**
@@ -266,33 +272,20 @@ trait MySqlDBQuery
     }
 
     /**
-     * get All row from table
-     * @param null $fetch_style
-     * @return array
-     * @throws \Exception
+     * @return string
      */
-    public function get($fetch_style = \PDO::FETCH_OBJ)
+    private function _wheres()
     {
-        $stmt = $this->execute_sql($this->_select(), $this->bind_params);
+        $where = '';
 
-        return $stmt->fetchAll($fetch_style);
-    }
+        if (isset($this->wheres)) {
 
-    /**
-     * Get all records as generator
-     * @param int $fetch_style
-     * @return \Generator
-     * @throws \Exception
-     */
-    public function yield($fetch_style = \PDO::FETCH_OBJ)
-    {
-        $stmt = $this->execute_sql($this->_select(), $this->bind_params);
-
-        while ($result = $stmt->fetch($fetch_style)) {
-            yield $result;
-
+            $where = " WHERE " . $this->wheres;
+            if (isset($this->or_wheres)) {
+                $where .= $this->or_wheres;
+            }
         }
-
+        return $where;
     }
 
     /**
@@ -300,7 +293,7 @@ trait MySqlDBQuery
      * @return mixed
      * @throws \Exception
      */
-    public function getone($fetch_style = \PDO::FETCH_OBJ)
+    public function getone($fetch_style = PDO::FETCH_OBJ)
     {
         $stmt = $this->execute_sql($this->_select(), $this->bind_params);
 
@@ -353,19 +346,14 @@ trait MySqlDBQuery
         foreach ($normal_array as $data) {
 
             $field = implode(', ', array_keys($data));
-
             $values = rtrim(str_repeat("?, ", count(array_values($data))), ', ');
 
-            try {
-                $sql = "INSERT INTO " . $this->table . "(" . $field . ")" . " VALUES " . "(" . $values . ")";
-                $stmt = $this->dbh->prepare($sql);
-                $stmt->execute(array_values($data));
-                $affectedRows += $stmt->rowCount();
+            $sql = "INSERT INTO " . $this->table . "(" . $field . ")" . " VALUES " . "(" . $values . ")";
 
-            } catch (\PDOException $e) {
+            $stmt = $this->dbh->prepare($sql);
+            $stmt->execute(array_values($data));
+            $affectedRows += $stmt->rowCount();
 
-                echo $e->getCode() . "<br>" . $e->getMessage() . "<br>" . $e->getTraceAsString();
-            }
         }
 
         $rows['rowCount'] = $affectedRows;
@@ -385,7 +373,7 @@ trait MySqlDBQuery
         try {
             $res = $this->execute_sql($sql, $this->bind_params)->rowCount();
 
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             die ("Error Deleting table" . $e->getMessage());
         }
 
@@ -405,32 +393,24 @@ trait MySqlDBQuery
         $set_data = "";
 
         foreach ($datas as $key => $val) {
-
             $set_data .= $key . "= ?, ";
         }
 
         $exec_val = array_merge(array_values($datas), $this->bind_params);
         $sql = "UPDATE " . $this->table . " SET " . rtrim($set_data, ', ') . $this->_wheres();
 
-        try {
-            //  $stmt = $this->dbh->prepare($sql);
-
-            //  $stmt->execute($exec_val);
-            $res = $this->execute_sql($sql, $exec_val)->rowCount();
-
-        } catch (\PDOException $e) {
-            die('Error when Update table ' . $this->table . ' ' . $e->getMessage());
-        }
-
-        return $res;
+        return $this->execute_sql($sql, $exec_val)->rowCount();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function paginate($n)
     {
-        $count_sql = "SELECT COUNT(*) AS count FROM {$this->table}" . $this->_wheres() . $this->groupBy;
+        $count_sql = "SELECT COUNT(*) AS count FROM $this->table" . $this->_wheres() . $this->groupBy;
         $sth = $this->dbh->prepare($count_sql);
         $sth->execute($this->bind_params);
-        $count = (int)$sth->fetch(\PDO::FETCH_ASSOC)['count'];
+        $count = (int)$sth->fetch(PDO::FETCH_ASSOC)['count'];
 
         $pagination = new Pagination();
 
@@ -441,27 +421,38 @@ trait MySqlDBQuery
 
         $this->rawLimit($pagination->limit);
 
-        $paginator = new \stdClass();
+        $paginator = new stdClass();
         $paginator->link = $link;
         $paginator->data = $this->get();
+
         return $paginator;
     }
 
-    /**
-     * @return \PDO
-     */
-    public function pdo()
+    public function rawLimit($str)
     {
-        return $this->dbh;
+        $this->limit = $str;
+        return $this;
     }
 
     /**
-     * Reset all
+     * get All row from table
+     * @param null $fetch_style
+     * @return array
+     * @throws \Exception
      */
-    protected function _reset()
+    public function get($fetch_style = PDO::FETCH_OBJ)
     {
-        unset($this->bind_params, $this->wheres, $this->or_wheres, $this->orderBy,
-              $this->limit, $this->groupBy, $this->field_name);
+        $stmt = $this->execute_sql($this->_select(), $this->bind_params);
+
+        return $stmt->fetchAll($fetch_style);
+    }
+
+    /**
+     * @return PDO
+     */
+    public function pdo(): PDO
+    {
+        return $this->dbh;
     }
 
 }

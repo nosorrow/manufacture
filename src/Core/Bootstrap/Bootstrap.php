@@ -30,13 +30,13 @@ $exceptionHandler->run();
  */
 date_default_timezone_set(Config::getConfigFromFile('timezone'));
 
-if (Config::getConfigFromFile('environment') == 'production') {
+if (Config::getConfigFromFile('environment') === 'production') {
 
     ini_set('display_errors', 0);
 
     error_reporting(0);
 
-} elseif (Config::getConfigFromFile('environment') == 'development') {
+} elseif (Config::getConfigFromFile('environment') === 'development') {
 
     ini_set('display_errors', 1);
     ini_set('xdebug.collect_params', '4');
@@ -45,7 +45,7 @@ if (Config::getConfigFromFile('environment') == 'production') {
     //  error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
     //  error_reporting(E_ERROR | E_WARNING);
 
-} elseif (Config::getConfigFromFile('environment') == 'whoops') {
+} elseif (Config::getConfigFromFile('environment') === 'whoops') {
 
     ini_set('display_errors', 1);
 
@@ -62,22 +62,6 @@ if (Config::getConfigFromFile('environment') == 'production') {
 } else {
     die(' $conf[\'environment\'] is not configured ! ');
 }
-//$dic = new DiContainer();
-/*$resolver = $dic->get(ParameterResolver::class);*/
 
-//$app = $dic->get(FrontController::class);
-//$resolver = new ParameterResolver($dic);
-
-//$app->uriFrontControllerDispatcher();
-
-//$class = $app->getFullControllerClassName();
-//$method = $app->getMethod();
-
-// Взима DI и dafault параметрите от метода на контролера
-//връща подредения масив със всички параметри & call_user_func_array
-/*$resolver->setParametersFromUri($app->getParamsFromUri())
-    ->injectedMethodParameters($class, $method)
-    ->resolve()
-    ->invoke();*/
 $manufacture = app(Dispatcher::class);
 $manufacture->run();

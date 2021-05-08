@@ -16,6 +16,7 @@ function model($path)
 
     $model = APPLICATION_DIR . 'Models' . DIRECTORY_SEPARATOR . ucfirst($filePath) . '.php';
     $modelNamespace = ($namespace == '') ? 'namespace App\Models;':"namespace App\Models\\$namespace;";
+
     $f =<<<CONTR
 <?php
 
@@ -26,9 +27,6 @@ use Core\Model;
 class $className extends Model
 {
 
-    /**
-     * BookingModel constructor.
-     */
     public function __construct()
     {
         parent::__construct();

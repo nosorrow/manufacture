@@ -52,7 +52,11 @@ if (!function_exists('site_url')) {
 }
 
 if (!function_exists('assets_url')) {
-
+    /**
+     * @param null $uri
+     * @return string
+     * @throws ReflectionException
+     */
     function assets_url($uri = null)
     {
         $uri = ($uri) ?   '/' . $uri : '';

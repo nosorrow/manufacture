@@ -241,7 +241,7 @@ trait ValidationRules
      */
     public function in($value, $list)
     {
-        return (bool)in_array($value, explode(',', $list), true);
+        return in_array($value, explode(',', $list), true);
     }
 
     /**
@@ -263,7 +263,7 @@ trait ValidationRules
      */
     public function is_numeric($val)
     {
-        return (bool)is_numeric($val);
+        return is_numeric($val);
     }
 
     /**

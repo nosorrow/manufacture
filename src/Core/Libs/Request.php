@@ -156,11 +156,10 @@ class Request
             $this->input[$name] = $this->{$input}($name, $normalize);
             return $this->input[$name];
 
-        } else {
-            $this->input = $this->{$input}($normalize);
-            return $this->input;
-
         }
+
+        $this->input = $this->{$input}($normalize);
+        return $this->input;
 
     }
 
@@ -193,7 +192,7 @@ class Request
     {
         $post = trimValues($this->post);
 
-        if ($normalize != null) {
+        if ($normalize !== null) {
             data_normalize($post, $normalize);
         }
 

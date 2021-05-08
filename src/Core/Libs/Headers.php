@@ -2,7 +2,6 @@
 
 namespace Core\Libs;
 
-
 class Headers
 {
     public static $codes = array(

@@ -122,6 +122,26 @@ if (!function_exists('dot_notation_dir')) {
     }
 }
 
+if (!function_exists('client_ip')) {
+    /**
+     * @return mixed
+     */
+    function client_ip()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        return $ip;
+    }
+}
+
 //---       Data manipulations  ---
 
 if (!function_exists('tap')) {
@@ -483,7 +503,7 @@ if (!function_exists('validation_error')) {
 
 //---------------  Form Helpers ------------------------
 /**
- * srf_field()
+ * csrf_field()
  * using of blade directive @csrf
  */
 if (!function_exists('csrf_field')) {
@@ -522,7 +542,6 @@ if (!function_exists('method_field')) {
 }
 
 //---       Render View  Helpers  ---
-
 if (!function_exists('setLayout')) {
     /**
      * use: setLayout('dashboard')->render('result', $data);

@@ -26,34 +26,12 @@ class MessageBag
     }
 
     /**
-     * for dump
-     * @return array
-     */
-    public function get($key = null)
-    {
-        if ($key === null) {
-            return $this->messages;
-        } else {
-            return Arr::get($this->messages, $key);
-           // return isset($this->messages[$key]) ? $this->messages[$key] : null;
-        }
-    }
-    /**
      *
      * @return array|null
      */
     public function all()
     {
-        return ($this->messages)? Arr::collapse($this->messages):null;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     */
-    public function __set($key, $value)
-    {
-        $this->messages[$key][] = $value;
+        return ($this->messages) ? Arr::collapse($this->messages) : null;
     }
 
     /**
@@ -66,39 +44,12 @@ class MessageBag
     }
 
     /**
-     *  Get first message wth key in bag
      * @param $key
-     * @return mixed
+     * @param $value
      */
-    public function first($key)
+    public function __set($key, $value)
     {
-        $message = $this->get($key);
-
-        if ($message) {
-            return reset($this->messages[$key]);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Get the number of messages in the message bag.
-     *
-     * @return int
-     */
-    public function count()
-    {
-        return count($this->messages, COUNT_RECURSIVE) - count($this->messages);
-    }
-
-    /**
-     * Determine if the message bag has any messages.
-     *
-     * @return bool
-     */
-    public function isEmpty()
-    {
-        return ! $this->any();
+        $this->messages[$key][] = $value;
     }
 
     /**
@@ -122,9 +73,19 @@ class MessageBag
     }
 
     /**
+     * Get the number of messages in the message bag.
+     *
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->messages, COUNT_RECURSIVE) - count($this->messages);
+    }
+
+    /**
      * Determine if messages exist for all of the given keys.
      *
-     * @param  array|string  $key
+     * @param array|string $key
      * @return bool
      */
     public function has($key = null)
@@ -150,14 +111,53 @@ class MessageBag
     }
 
     /**
-     * Convert the object to its JSON representation.
+     * Determine if the message bag has any messages.
      *
-     * @param  int  $options
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return !$this->any();
+    }
+
+    /**
+     *  Get first message wth key in bag
+     * @param $key
+     * @return mixed
+     */
+    public function first($key)
+    {
+        $message = $this->get($key);
+
+        if ($message) {
+            return reset($this->messages[$key]);
+        }
+
+        return null;
+    }
+
+    /**
+     * for dump
+     * @return array
+     */
+    public function get($key = null)
+    {
+        if ($key === null) {
+            return $this->messages;
+        }
+
+        return Arr::get($this->messages, $key);
+        // return isset($this->messages[$key]) ? $this->messages[$key] : null;
+    }
+
+    /**
+     * Convert the object to its JSON representation.
      * @return string
+     * @throws \JsonException
      */
     public function toJson()
     {
-        return json_encode($this->messages, JSON_UNESCAPED_UNICODE);
+        return json_encode($this->messages, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
     }
 
     /**

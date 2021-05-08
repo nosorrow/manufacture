@@ -384,7 +384,6 @@ class Validator
             case 'before':
                 if (!$this->date($arg)) {
                     $arg = $this->parsed_rule_data[$arg]['value'];
-
                 }
 
                 break;
@@ -450,7 +449,7 @@ class Validator
 
         if ($field === '') {
 
-            foreach ($this->errors->get() as $key => $values) {
+            foreach ($this->errors->get() as $values) {
 
                 foreach ($values as $msg) {
 
@@ -496,7 +495,7 @@ class Validator
      */
     public static function getInstance()
     {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
 
             self::$instance = new self();
         }
