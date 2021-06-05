@@ -216,7 +216,7 @@ trait ValidationRules
      */
     public function gte($str, $field)
     {
-        return is_numeric($str) ? (bool)((int)$str >= (int)$this->getValue($field)) : false;
+        return is_numeric($str) ? (int)$str >= (int)$this->getValue($field) : false;
     }
 
     /**
@@ -241,7 +241,7 @@ trait ValidationRules
      */
     public function in($value, $list)
     {
-        return (bool)in_array($value, explode(',', $list), true);
+        return in_array($value, explode(',', $list), true);
     }
 
     /**
@@ -263,7 +263,7 @@ trait ValidationRules
      */
     public function is_numeric($val)
     {
-        return (bool)is_numeric($val);
+        return is_numeric($val);
     }
 
     /**

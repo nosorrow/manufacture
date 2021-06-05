@@ -6,7 +6,6 @@ use Core\Libs\Session;
 
 class Csrf
 {
-
     /**
      * @var Session
      */
@@ -33,11 +32,8 @@ class Csrf
     public function __construct(Request $request)
     {
         $this->request = $request;
-
         $this->session = Session::getInstance();
-
         if ($this->session->getData('csrf_token')) {
-
             $this->csrf_old_token = $this->session->getData('csrf_token');
         }
     }
@@ -47,10 +43,7 @@ class Csrf
      */
     protected function setToken()
     {
-        $token = md5(bin2hex(openssl_random_pseudo_bytes(5)));
-
-        return $token;
-
+        return md5(bin2hex(random_bytes(5)));
     }
 
     /**
@@ -59,10 +52,11 @@ class Csrf
     public function csrf_field()
     {
         $this->csrf_token = $this->setToken();
-
         $this->session->store('csrf_token', $this->csrf_token);
-
-        echo "<input type='hidden' name='csrf_token' id='csrf_token' value='" . $this->csrf_token . "' />" . PHP_EOL;
+        echo "<input type='hidden' name='csrf_token' id='csrf_token' value='" .
+            $this->csrf_token .
+            "' />" .
+            PHP_EOL;
     }
 
     /**
@@ -70,21 +64,18 @@ class Csrf
      */
     public function csrf_validate()
     {
-        $input = $this->request;
-
-        if ($input->post('csrf_token') == '') {
+        if ($this->request->post('csrf_token') === '') {
             return false;
         }
 
-        if ($input->method() == 'POST' && $input->post('csrf_token') === $this->csrf_old_token) {
-
+        if (
+            $this->request->method() === 'POST' &&
+            $this->request->post('csrf_token') === $this->csrf_old_token
+        ) {
             return true;
-
-        } else {
-
-            return false;
         }
 
+        return false;
     }
 
     /**
@@ -95,8 +86,7 @@ class Csrf
      */
     public static function validate()
     {
-       return app(__CLASS__)->csrf_validate();
-
+        return app(__CLASS__)->csrf_validate();
     }
 
     /**
@@ -106,8 +96,8 @@ class Csrf
      */
     public function __call($name, $arguments)
     {
-        throw new \BadMethodCallException("Bad Csrf method {'$name'} "
-            . implode(', ', $arguments));
+        throw new \BadMethodCallException(
+            "Bad Csrf method {'$name'} " . implode(', ', $arguments)
+        );
     }
-
 }

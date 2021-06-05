@@ -43,7 +43,7 @@ return [
      *  'php' за рендериране с чист php код
      *  'blade" laravel.com -> blade template
      * =========================================*/
-    'template_engine'=>'blade',
+    'template_engine'=>'',
 
     /* ========================================
      *Timezone

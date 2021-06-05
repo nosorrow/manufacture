@@ -12,7 +12,7 @@ use Core\Libs\Interfaces\Facade as FasadeInterface;
 /**
  * Class DB
  * @method static string get(string $key, string $domain)
- * @method static string getConfigFromFile(string $key, string $domain)
+ * @method static string getConfigFromFile(string $key, string $domain = '')
  * @package Core\Libs\Support\Facades
  */
 class Config extends Facade implements FasadeInterface

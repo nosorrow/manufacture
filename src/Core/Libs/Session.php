@@ -6,10 +6,8 @@ use Core\Libs\Support\Arr;
 use Core\Libs\Support\Facades\Config;
 
 /*
- *
  * $session = new Session();
  * $session->store('name', 'value');
- *
  */
 
 /**
@@ -112,6 +110,7 @@ class Session
     {
         if (!is_array($key) && is_object($data)) {
             Arr::set($_SESSION, $key, $data);
+
             return;
         }
 
@@ -170,11 +169,11 @@ class Session
      * @param $key
      * @return null
      */
-    public function getData($key)
+    public function getData($key, $default = null)
     {
         $session = $this->recursiveCleanSession($_SESSION);
 
-        return Arr::get($session, $key, []);
+        return Arr::get($session, $key, $default);
     }
 
     /**
@@ -182,9 +181,9 @@ class Session
      * @return bool
      */
 
-    public function has($key)
+    public function has($key, $default = false)
     {
-        $array = Arr::get($_SESSION, $key, []);
+        $array = Arr::get($_SESSION, $key, $default);
 
         return (bool) $array;
     }
@@ -196,9 +195,7 @@ class Session
     public function push($name, $value)
     {
         $array = (array) Arr::get($_SESSION, $name, []);
-
         $array[] = $value;
-
         $this->store($name, $array);
     }
 
@@ -231,7 +228,6 @@ class Session
 
         if (isset($_SESSION['flash'][$key])) {
             $flash[$key] = $_SESSION['flash'][$key];
-
             unset($_SESSION['flash'][$key]);
         } else {
             $flash[$key] = null;

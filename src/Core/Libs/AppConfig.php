@@ -4,6 +4,7 @@
 namespace Core\Libs;
 
 use Core\Libs\Support\Arr;
+use Exception;
 
 class AppConfig
 {
@@ -30,7 +31,7 @@ class AppConfig
     /**
      * @param $key
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function get($key, $domain = self::DOMAIN)
     {
@@ -41,7 +42,7 @@ class AppConfig
      * @param $name
      * @param string $domain
      * @return mixed|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function getConfigFromFile($name, $domain = self::DOMAIN)
     {
@@ -49,11 +50,7 @@ class AppConfig
 
         $config = Arr::get($configArr, $domain . '.' . $name);
 
-        if (!isset($config)) {
-            return null;
-        }
-
-        return $config;
+        return $config ?? null;
 
     }
 
@@ -90,11 +87,11 @@ class AppConfig
 
     /**
      * Singletons should not be restorable from strings.
-     * @throws \Exception
+     * @throws Exception
      */
     public function __wakeup()
     {
-        throw new \Exception("Cannot unserialize a singleton.");
+        throw new Exception("Cannot unserialize a singleton.");
     }
 
     /**

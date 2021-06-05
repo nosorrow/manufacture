@@ -36,7 +36,12 @@ class ExceptionHandler
 
     public function _exception($e)
     {
-        if (Config::getConfigFromFile('environment') == 'development') {
+        if (Config::getConfigFromFile('environment') === 'development') {
+
+//            if($e->getCode() === 404){
+//                return redirect()->to('page/404');
+//            }
+//
             try {
                 $msg = Headers::setHeaderWithCode($e->getCode());
                 echo '<h2>{ ' . $e->getCode() . ' }</h2>';
@@ -48,10 +53,10 @@ class ExceptionHandler
                 echo '<h1>' . $e->getCode() . '</h1>';
             }
 
-        } elseif (Config::getConfigFromFile('environment') == 'production') {
+        } elseif (Config::getConfigFromFile('environment') === 'production') {
 
             // Всичко което не е 404
-            $code = ($e->getCode() == 404) ? $e->getCode() : 500;
+            $code = ($e->getCode() === 404) ? $e->getCode() : 500;
 
             try {
                 if (Config::getConfigFromFile('logger') === true) {
@@ -64,7 +69,7 @@ class ExceptionHandler
                         . " Exceptions Message: " . $e->getMessage() . PHP_EOL
                         . " Line: " . $e->getLine() . PHP_EOL
                         . " Trace: " . $e->getTraceAsString();
-                    if($code == 404){
+                    if($code === 404){
                         $this->logger->error($log);
 
                     } else {
@@ -87,5 +92,7 @@ class ExceptionHandler
 
             return view($path);
         }
+
     }
+
 }

@@ -38,12 +38,11 @@ class DataBase implements DbStrategy
      */
     public function get()
     {
-        $connection = $this->connection ? $this->connection : $this->dbconfig['default'];
+        $connection = $this->connection ?: $this->dbconfig['default'];
 
         if (!isset($this->dbconfig['connections'][$connection]) ||
             !$this->dbconfig['connections'][$connection]
         ) {
-
             throw new \PDOException(sprintf('(%s) connections is missing in database configuration file',
                 $connection));
         }
@@ -53,10 +52,9 @@ class DataBase implements DbStrategy
         if ($driver === 'mysql') {
             return new MysqlPDO($connection);
 
-        } else {
-            throw new \PDOException(sprintf('(%s) is not supprted database  driver', $driver));
-
         }
+
+        throw new \PDOException(sprintf('(%s) is not supprted database  driver', $driver));
     }
 
     /**

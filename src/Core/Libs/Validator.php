@@ -7,7 +7,7 @@
  *
  * $validator = new \Libs\Validator
  *
- * $validator->validate($data)
+ * $validator->for($data)
  *          ->make('checkin', 'пристигане' ,['required', 'min:2', 'max:15'])
  *          ->make('checkout', 'заминаване' ,['min:2', 'max:15'])->run();
  *
@@ -125,7 +125,7 @@ class Validator
      */
     public function make($field, $label = null, $rules = null, $customMsg = null)
     {
-        // 1. parse $field if input in an array and have wildcard like (emails.*)
+        // parse $field if input in an array and have wildcard like (emails.*)
         // will return array of replaced field key in dot notation => [emails.1, emails.2, emails.3]
         // with their values from
 
@@ -147,7 +147,7 @@ class Validator
                 foreach ($implicitAttributesData as $field_name => $dataforvalidation) {
                     $this->parsed_rule_data[$field_name] = $this->createRulesDataArray($field_name, $value['label'], $dataforvalidation, $value['rules']);
 
-                    if ($value['message'] && $customMsg == null) {
+                    if ($value['message'] && $customMsg === null) {
                         // $custoMsg = ['field.rule'=>'message']
                         $message = $this->parseCustomMsgFromArray($field_name, $value['message']);
                         $this->ownFieldMessages[$field_name] = $message;
@@ -189,6 +189,18 @@ class Validator
     }
 
     /**
+     * @param $field
+     * @param null $label
+     * @param null $rules
+     * @param null $customMsg
+     * @return $this
+     */
+    public function ruleFor($field, $label = null, $rules = null, $customMsg = null): Validator
+    {
+        return $this->make($field, $label, $rules, $customMsg);
+    }
+
+    /**
      * @return bool
      * @throws \ReflectionException
      */
@@ -201,29 +213,26 @@ class Validator
         if (count($this->parsed_rule_data) > 0) {
 
             foreach ($this->parsed_rule_data as $data) {
-
                 $dataForValidation = $data['value'];
 
                 foreach ($data['rules'] as $_rules) {
 
                     if (isClosure($_rules) === false) {
-                        // list($rule, $arg) = explode(':', $_rules);
                         $parsedRules = $this->parseRules($_rules);
                         $rule = $parsedRules['rule'];
                         $arg = $parsedRules['arg'];
 
-                        // Валидиране на данните
+                        // data validation
                         $run = $this->$rule($dataForValidation, $arg);
-
                         $label = $this->parseFieldLabel($data['field'], $data['label'], $rule);
 
-                        // Ако валидацията не мине - пълни масив с грешки
+                        // array with errors
                         if ($run === false) {
                             // delete old value
                             Arr::forget($this->old, $data['field']);
 
-                            // Ако полето е required
-                            if ($rule == 'required') {
+                            // if field is required
+                            if ($rule === 'required') {
                                 unset($this->errors->{$data['field']});
                                 $this->errors->{$data['field']} = $this->_msg($data['field'], 'required', $label, $arg);
 
@@ -235,8 +244,10 @@ class Validator
                         }
 
                     } else {
-                        // ако валидиращото правило е анонимна функция
-                        // [function($atribute, $value){ ...... }]
+                        /*
+                         * if validation rule is anonymous function
+                         * [function($atribute, $value){ ...... }]
+                        */
                         $label = ($data['label']) ? $data['label'] : $data['field'];
                         $a = call_user_func_array($_rules, [$label, $dataForValidation]);
 
@@ -253,7 +264,7 @@ class Validator
 
         $has_errors = $this->errors->any();
 
-        return (bool)$has_errors === false;
+        return $has_errors === false;
     }
 
     /**
@@ -275,7 +286,7 @@ class Validator
 
         foreach ($messages as $field => $msg) {
 
-            // 1. ['email' => 'O Need  a valid email address']
+            // ['email' => 'O Need  a valid email address']
             // Message for all fields under validation
             if (is_string($msg)) {
                 $this->ownMessages[$field] = $msg;
@@ -317,7 +328,7 @@ class Validator
             $label = substr($label, 1);
 
         } else {
-            $label = ($label != '') ? $label : $field;
+            $label = ($label !== '') ? $label : $field;
 
         }
 
@@ -362,29 +373,17 @@ class Validator
     protected function getComparableFieldName($rule, $arg)
     {
         switch ($rule) {
-            case 'match':
-                $arg = ($this->parsed_rule_data[$arg]['label']) ? $arg = $this->parsed_rule_data[$arg]['label'] : $arg;
-
-                break;
-
             case 'different':
-                $arg = ($this->parsed_rule_data[$arg]['label']) ? $arg = $this->parsed_rule_data[$arg]['label'] : $arg;
+            case 'match':
+                $arg = ($this->parsed_rule_data[$arg]['label']) ? $this->parsed_rule_data[$arg]['label'] : $arg;
 
                 break;
 
             // не искам да показва името на плето а неговата стойност / дата след 2016-05-20 /
+            case 'after':
             case 'before':
                 if (!$this->date($arg)) {
                     $arg = $this->parsed_rule_data[$arg]['value'];
-
-                }
-
-                break;
-
-            case 'after':
-                if (!$this->date($arg)) {
-                    $arg = $this->parsed_rule_data[$arg]['value'];
-
                 }
 
                 break;
@@ -450,7 +449,7 @@ class Validator
 
         if ($field === '') {
 
-            foreach ($this->errors->get() as $key => $values) {
+            foreach ($this->errors->get() as $values) {
 
                 foreach ($values as $msg) {
 
@@ -496,7 +495,7 @@ class Validator
      */
     public static function getInstance()
     {
-        if (self::$instance == null) {
+        if (self::$instance === null) {
 
             self::$instance = new self();
         }

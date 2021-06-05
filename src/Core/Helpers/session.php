@@ -6,27 +6,30 @@ use Core\Libs\Session;
 if (!function_exists('sessionData')) {
     /**
      * get Session data from $_SESSION
-     * Ako $name е масив или имаме стойност в value
-     * то ще слагаме сеиия ($nama=>$value),
-     *  иначе вземам сесия с име $name;
+     * Ako $key е масив или имаме стойност в data
+     * то ще слагаме сеия (key=>val),
+     * иначе вземам сесия с име $name;
+     * @throws \ReflectionException
      */
     function sessionData($key = null, $data = null)
     {
         $session = app(Session::class);
 
-        if ($key == null && $data == null){
+        if ($key === null && $data === null){
             return $session->get_all();
         }
 
         if (is_array($key)) {
             return $session->store($key);
 
-        } elseif ($key !== null && $data !== null) {
+        }
+
+        if ($key !== null && $data !== null) {
             return $session->store($key, $data);
 
-        } else {
-            return $session->getData($key);
         }
+
+        return $session->getData($key);
 
     }
 }
@@ -55,7 +58,7 @@ if (!function_exists('flash')) {
 
 if (!function_exists('session_push')) {
     /**
-     *
+     * Session push
      */
     function session_push($key, $value)
     {
@@ -96,28 +99,32 @@ if (!function_exists('errors')) {
 
     /**
      *  Return unserialized message bag object
-     * @return \Illuminate\Foundation\Application|mixed
+     * @throws \ReflectionException
      */
     function errors(){
         if (session_has('_errors')){
-            $errors = unserialize(sessiondata('_errors'));
+            $errors = unserialize(sessiondata('_errors'),['allowed_classes' => true]);
             session_delete('_errors');
             return $errors;
 
-        } else {
-            return app(\Core\Libs\Support\MessageBag::class);
         }
 
+        return app(Core\Libs\Support\MessageBag::class);
     }
 }
 
 if (!function_exists('old')) {
 
+    /**
+     * @throws \ReflectionException
+     */
     function old($key){
         if (session_has('_old_input.'.$key)) {
             $old = sessionData('_old_input.'.$key);
             session_delete('_old_input.'.$key);
             return $old;
         }
+
+        return null;
     }
 }

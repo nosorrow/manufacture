@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 defined('APPLICATION_DIR') OR exit('No direct Accesss here !');
 
-use App\Libraries\Cart;
 use Core\Controller;
 use Core\Libs\{Request, Response, Csrf, Validator};
 use Core\Libs\Support\Facades\{Url, DB, Validator as ValidatorFacade};
@@ -12,6 +11,7 @@ use Symfony\Component\Finder\Finder;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+use Core\Libs\Support\Arr;
 
 class TestController extends Controller
 {
@@ -22,7 +22,26 @@ class TestController extends Controller
 
     public function form()
     {
-        view('form-search');
+        view('form');
+    }
+
+    public function testStoreBlade(Request $request, Validator $validator)
+    {
+        $validator->for($request)
+            ->make('email', 'Email address', ['required'])
+            //      ->make('pass', 'Enter Password', ['required', 'min:3'])
+            //      ->make('passwordconfirm', 'Confirm password', ['required', 'match:pass'])
+            ->make('agree', 'Agree', ['required']);
+
+        $validator->message(['required' => 'Please fill this field']);
+
+        if ($validator->run() === false) {
+           // return view('form');
+            redirect()->back();
+        }
+
+        dump($request->input());
+
     }
 
     /**
@@ -45,19 +64,6 @@ class TestController extends Controller
      */
     public function testBlade(Finder $finder)
     {
-        /*$data['valid'] = (Url::full() == Url::previous()) ? 'is-valid' : null;
-
-            $p2 = $cart->add(['id' => '45', 'qty' => '2', 'price' => '100.24', 'name' => 'Jeans',
-                'variations'=>[
-                    'color'=>'white',
-                    'dimension'=>[
-                        'size'=>'M'
-                    ]
-                ]
-            ]);
-        dd($cart->getCart());*/
-       // view('blade.homepage', $data);
-
        $finder->files()->in('js')->name('*.js');
 
         foreach ($finder as $file) {
@@ -79,31 +85,6 @@ class TestController extends Controller
         echo $link . " " . $lang;
     }
 
-    public function testStoreBlade(Request $request, Validator $validator)
-    {
-        echo "testStoreBlade ID: " . ($request->id);
-        var_dump(($request->cookie('manufacture')));
-        // die;
-        parse_str(file_get_contents("php://input"), $q);
-        $validator->for($request)
-            ->make('email', 'Email address', ['required'])
-            //      ->make('pass', 'Enter Password', ['required', 'min:3'])
-            //      ->make('passwordconfirm', 'Confirm password', ['required', 'match:pass'])
-            ->make('agree', 'Agree', ['required']);
-
-        // $validator->message(['required' => 'Please fill this field']);
-
-        if ($validator->run() === false) {
-            redirect()->back();
-        }
-
-        $data = ['name' => $request->post('email')];
-
-        if (DB::table('test')->insert($data)) {
-            redirect()->to('blade')->with('success', 'all is Ok!');
-        }
-    }
-
     public function ajax()
     {
         $data = DB::table('geo_city')->paginate(10);
@@ -116,6 +97,7 @@ class TestController extends Controller
 
     public function search(Request $request, Csrf $csrf)
     {
+
         $validation = $request->validation()
             ->make('email', _t('поща'), ['required', 'email'])
             ->make('pass', _t('Парола'), ['required', 'min:4', 'max:8']);

@@ -15,6 +15,8 @@ class MysqlPDO
      */
     public function __construct($connections = 'mysql')
     {
-        $this->connection(MySqlPDOConnection::getInstance($connections)->getConnection());
+        $this->connection(
+            MySqlPDOConnection::getInstance($connections)->getConnection()
+        );
     }
 }

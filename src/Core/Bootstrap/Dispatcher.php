@@ -33,9 +33,7 @@ class Dispatcher
     {
         $this->frontController = app(FrontController::class);
         $this->resolver = app(ParameterResolver::class);
-
         $this->frontController->uriFrontControllerDispatcher();
-
         $this->controller = $this->frontController->getFullControllerClassName();
         $this->method = $this->frontController->getMethod();
 

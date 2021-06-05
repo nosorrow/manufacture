@@ -23,11 +23,9 @@ class Config
     public static function getConfigFromFile($name, $domain = self::DOMAIN)
     {
         $configArr  = self::configArray();
-
         $config = Arr::get($configArr, $domain . '.' . $name);
 
         if (!isset($config)) {
-
             throw new \Exception("The configuration key '{$name}' is not defined", 500);
 
         }

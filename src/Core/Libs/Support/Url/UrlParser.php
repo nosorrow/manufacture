@@ -98,12 +98,9 @@ final class UrlParser
         self::setScriptPath($_SERVER['SCRIPT_NAME']);
 
         if (!empty($request)) {
-
             self::removeIndex();
-
             // ако се извиква от пр. http://localhost/MyScripts/booking-room/public/search
             $_uri = trim(substr($request, strlen(self::$script_path)), '/');
-
             // Ако има GET query  : http://booking-room.dev/booking?bar=baz
             //искам да uri = booking , query = bar=zas
             if (strpos($_uri, '?') !== false) {

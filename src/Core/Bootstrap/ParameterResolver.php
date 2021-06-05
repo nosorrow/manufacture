@@ -46,10 +46,9 @@ class ParameterResolver
      */
     public $resolved_parameters = [];
 
-
     public function __construct(DiContainer $dic)
     {
-       // $this->dic = $dic;
+        // $this->dic = $dic;
     }
 
     /**
@@ -79,22 +78,15 @@ class ParameterResolver
 
         foreach ($_params as $value) {
             if ($value->getClass() !== null) {
-//                $this->di_parameters[] = $this->dic->get($value->getClass()->getName());
                 $this->di_parameters[] = app($value->getClass()->getName());
-
-
+            } elseif ($value->isDefaultValueAvailable()) {
+                $this->optional_parameters[] = $value->getDefaultValue();
             } else {
-                if ($value->isDefaultValueAvailable()) {
-                    $this->optional_parameters[] = $value->getDefaultValue();
-
-                } else {
-                    $this->optional_parameters[] = 'notoptional';
-                }
+                $this->optional_parameters[] = 'notoptional';
             }
         }
 
         return $this;
-
     }
 
     /**
@@ -103,30 +95,37 @@ class ParameterResolver
      */
     public function resolve()
     {
-        $_paramsRepalcement = array_replace($this->optional_parameters, $this->uri_parameters);
+        $_paramsRepalcement = array_replace(
+            $this->optional_parameters,
+            $this->uri_parameters
+        );
 
-        $this->resolved_parameters = array_merge($this->di_parameters, $_paramsRepalcement);
+        $this->resolved_parameters = array_merge(
+            $this->di_parameters,
+            $_paramsRepalcement
+        );
 
         // ако в параметрите има параметър без стойност хвърля Exceptions
         if (in_array('notoptional', $this->resolved_parameters)) {
-
-            throw new \Exception('Incorrectly passed method parameters  [ ' . $this->method . ' ] '
-                . ' in Class ' . $this->class, 500);
-
+            throw new \Exception(
+                'Incorrectly passed method parameters  [ ' .
+                    $this->method .
+                    ' ] ' .
+                    ' in Class ' .
+                    $this->class,
+                500
+            );
         }
         return $this;
     }
 
     /**
      * Изиква метода
+     * @throws \ReflectionException
      */
     public function invoke()
     {
-//        $obj = $this->dic->get($this->class);
         $obj = app($this->class);
-
-        call_user_func_array(array($obj, $this->method), $this->resolved_parameters);
-
+        call_user_func_array([$obj, $this->method], $this->resolved_parameters);
     }
-
 }

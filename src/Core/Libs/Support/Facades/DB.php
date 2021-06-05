@@ -17,8 +17,15 @@ use Core\Libs\Interfaces\Facade as FasadeInterface;
  */
 class DB extends Facade implements FasadeInterface
 {
-    public static $db;
+    /**
+     * @var
+     */
+    public static DataBase $db;
 
+    /**
+     * @return \Core\Libs\Database\MysqlPDO
+     * @throws \Exception
+     */
     public static function getFacade()
     {
         self::$db = new DataBase();
@@ -26,6 +33,11 @@ class DB extends Facade implements FasadeInterface
         return self::$db->get();
     }
 
+    /**
+     * @param string $connection
+     * @return \Core\Libs\Database\MysqlPDO
+     * @throws \Exception
+     */
     public static function connection($connection = '')
     {
         $db = new DataBase();

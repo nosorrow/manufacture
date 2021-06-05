@@ -64,8 +64,7 @@ try {
         'name' => 'testBlade',
     ]);
     Router::any('store-blade/{lang?}', [
-        'TestController@testStoreBlade',
-        'middleware' => 'test',
+        'TestController@testStoreBlade'
     ]);
     Router::get('/{lang?:[a-z]{0,3}}/products', [
         'TestController@getProducts',

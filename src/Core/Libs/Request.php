@@ -2,9 +2,11 @@
 
 namespace Core\Libs;
 
+use BadMethodCallException;
 use Core\Libs\Files\Upload;
 use Core\Libs\Support\ParameterBag;
 use Core\Libs\Validator\ValidatesRequests;
+use RuntimeException;
 
 /**
  * Class Request
@@ -36,14 +38,11 @@ class Request
 
     public $parameterBag;
 
-    public $id;
-
     /**
      * Request constructor.
      */
     private function __construct()
     {
-        $this->id = bin2hex(random_bytes(3));
         $parameters = ['post' => $_POST];
 
         $this->session = Session::getInstance();
@@ -52,7 +51,7 @@ class Request
 
         if (!empty($_FILES)) {
             // TODO - Зaщо post е NULL ???
-            $post = $this->post??[];
+            $post = $this->post ?? [];
             $this->post = array_merge($post, $_FILES);
         }
 
@@ -66,6 +65,36 @@ class Request
 
         $this->parameterBag = new ParameterBag($parameters);
 
+    }
+
+    /**
+     * за PUT PATCH DELETE
+     * методи които не се поддържат от браузъра се използва:
+     * <input type="hidden" name="_method" value="DELETE">
+     * helpers -> method_field()
+     */
+    private function httpMethodInit()
+    {
+        if ($this->post('_method')) {
+
+            $this->method = strtoupper($this->post('_method'));
+
+        } else {
+            $this->method = $_SERVER['REQUEST_METHOD'];
+        }
+
+    }
+
+    /**
+     * post
+     *
+     * @param null $index
+     * @param null $normalize
+     * @return mixed
+     */
+    public function post($index = null, $normalize = null)
+    {
+        return $this->getInputData($this->post, $index, $normalize);
     }
 
     /**
@@ -97,6 +126,19 @@ class Request
     }
 
     /**
+     * @return Request|null
+     */
+    public static function getInstance()
+    {
+        if (self::$instance === null) {
+
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
+
+    /**
      * @param $name
      * @param null $normalize
      * @return mixed
@@ -114,12 +156,19 @@ class Request
             $this->input[$name] = $this->{$input}($name, $normalize);
             return $this->input[$name];
 
-        } else {
-            $this->input = $this->{$input}($normalize);
-            return $this->input;
-
         }
 
+        $this->input = $this->{$input}($normalize);
+        return $this->input;
+
+    }
+
+    /**
+     * @return mixed
+     */
+    public function method()
+    {
+        return strtoupper($this->method);
     }
 
     /**
@@ -132,32 +181,18 @@ class Request
 
         $this->json = json_decode($stream, $assoc);
 
-        if($key === null){
+        if ($key === null) {
             return $this->json;
         }
 
         return data_get($this->json, $key);
     }
 
-    /**
-     * post
-     *
-     * @param $index
-     * @return mixed
-     */
-    public function post($index = null, $normalize = null)
-    {
-        $post = $this->getInputData($this->post, $index, $normalize);
-
-        return $post;
-    }
-
-
     public function postAll($normalize = null)
     {
         $post = trimValues($this->post);
 
-        if ($normalize != null) {
+        if ($normalize !== null) {
             data_normalize($post, $normalize);
         }
 
@@ -187,16 +222,14 @@ class Request
      */
     public function get($index = null, $normalize = null)
     {
-        $get = $this->getInputData($this->get, $index, $normalize);
-
-        return $get;
+        return $this->getInputData($this->get, $index, $normalize);
     }
 
     public function getAll($normalize = null)
     {
         $get = trimValues($this->get);
 
-        if ($normalize != null) {
+        if ($normalize !== null) {
             data_normalize($get, $normalize);
         }
 
@@ -255,24 +288,14 @@ class Request
             );
         */
         if (is_array($name)) {
-            //
             $countVariablesCreated = extract($name, EXTR_OVERWRITE);
-            if ($countVariablesCreated != count($name)) {
-                throw new \RuntimeException('Extraction failed: scope modification attempted');
+            if ($countVariablesCreated !== count($name)) {
+                throw new RuntimeException('Extraction failed: scope modification attempted');
             }
-            //extract($name);
         }
 
-        setcookie($name, $value, time() + $expire, $path, $domain, $secure, $httponly);
+        setcookie((string)$name, $value, time() + $expire, $path, $domain, $secure, $httponly);
 
-    }
-
-    /**
-     * @return mixed
-     */
-    public function method()
-    {
-        return strtoupper($this->method);
     }
 
     /**
@@ -281,24 +304,6 @@ class Request
     public function setMethod($httpMethod)
     {
         $this->method = $httpMethod;
-    }
-
-    /**
-     * за PUT PATCH DELETE
-     * методи които не се поддържат от браузъра се използва:
-     * <input type="hidden" name="_method" value="DELETE">
-     * helpers -> method_field()
-     */
-    private function httpMethodInit()
-    {
-        if ($this->post('_method')) {
-
-            $this->method = strtoupper($this->post('_method'));
-
-        } else {
-            $this->method = $_SERVER['REQUEST_METHOD'];
-        }
-
     }
 
     /**
@@ -313,22 +318,9 @@ class Request
 
             return $this->post($arguments[0], $arguments[1]);
 
-        } else {
-            throw new \BadMethodCallException("Bad request method: [{$name}] ", 501);
-        }
-    }
-
-    /**
-     * @return Request|null
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-
-            self::$instance = new self();
         }
 
-        return self::$instance;
+        throw new BadMethodCallException("Bad request method: [{$name}] ", 501);
     }
 
 }

@@ -107,7 +107,7 @@ class BladeEngine implements ViewInterface
 
     /**
      * Singleton
-     * @return View|null
+     * @return BladeEngine
      */
     public static function getInstance()
     {
