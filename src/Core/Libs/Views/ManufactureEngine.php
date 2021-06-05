@@ -1,19 +1,5 @@
 <?php
 
-/**
- * View се извикват в контролера:
- * With helpers
- * view('name', $data);
- * With method
- * @see ManufactureEngine::render()
- * $this->view->render('name', $data);
- * Set layout
- * @see ManufactureEngine::setLayout()
- * $this->view->setLayout('dashboard')->render('file', data);
- * setLayout('name')
- *
- */
-
 namespace Core\Libs\Views;
 
 use Core\Libs\Interfaces\View as ViewInterface;
@@ -74,15 +60,12 @@ class ManufactureEngine implements ViewInterface
         }
 
         $main = $this->template_engine_path . $view_name . '.php';
-
         $view = APPLICATION_DIR . $this->layout;
-
         $this->_data = $data;
 
         if (is_readable($main)) {
 
             ob_start();
-
             extract($data);
 
             // превенция на колизия с приложения на по-стара версия
@@ -96,27 +79,25 @@ class ManufactureEngine implements ViewInterface
             }
 
             if (is_readable($view)) {
-
                 include_once $view;
 
             } else {
-
                 throw new \Exception('# phpEngineRender error: ManufactureEngine can not load  [' . $view . ' ]', 404);
             }
 
             echo ob_get_clean();
 
         } else {
-
             throw new \Exception('# phpEngineRender say error : ManufactureEngine can not load [' . $main . ' ]', 404);
         }
 
     }
 
-    /**
-     * Get stored errors in sessin _erros
-     * @return Core\Libs\Support\MessageBag;
-     */
+	/**
+	 * Get stored errors in sessin _erros
+	 * @return Core\Libs\Support\MessageBag;
+	 * @throws \ReflectionException
+	 */
     private function getErrors()
     {
         return errors();

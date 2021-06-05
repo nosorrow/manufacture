@@ -52,6 +52,11 @@ class MessageBag
         $this->messages[$key][] = $value;
     }
 
+	public function unset($key): void
+	{
+		unset($this->messages[$key]);
+    }
+
     /**
      * Determine if the message bag has any messages.
      *
@@ -102,7 +107,7 @@ class MessageBag
         $keys = is_array($key) ? $key : func_get_args();
 
         foreach ($keys as $key) {
-            if ($this->first($key) == null) {
+            if ($this->first($key) === null) {
                 return false;
             }
         }
@@ -160,6 +165,10 @@ class MessageBag
         return json_encode($this->messages, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
     }
 
+	public function toArray(): array
+	{
+		return $this->messages;
+    }
     /**
      * @return string
      */
