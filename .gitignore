@@ -1,0 +1,7 @@
+src/vendor/
+.idea/*
+!public/
+public/*
+!public/index.php
+!public/.htaccess
+!public/favicon.ico
